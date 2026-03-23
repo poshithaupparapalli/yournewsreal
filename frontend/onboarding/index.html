@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!-- this is a comment -->
+ <!-- Screen 1: Create account -->
+ <html lang = "en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Welcome to yournews</title>
+        <style>
+        * {  /*The * means "apply this to every single element on the page.*/
+            box-sizing: border-box;
+            margin: 0; /*browsers add default spacing around everything. This resets all of it to zero so you start with a blank slate.*/
+            padding: 0;
+            font-family: -apple-system, sans-serif; /* uses the system font*/
+        }
+
+        body {
+            background: #f5f5f5;
+            /* centres everything on the page */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        form {
+            background: rgb(255, 255, 255);
+            padding: 40px;
+            border-radius: 12px;
+            width: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        label {
+            font-size: 14px;
+            color: #444;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            background: #1a4a7a;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+</style>
+    </head>
+    <body>
+        <form>
+            <h1>Create your account</h1>
+
+            <label>Full name</label>
+            <input type="text" placeholder="Your name">
+
+            <label>Email</label>
+            <input type="email" placeholder="you@email.com">
+
+            <label>Password</label>
+            <input type="password" placeholder="At least 8 characters">
+
+            <button type="submit">Create account</button>
+
+        </form>
+</body>
+</html>
