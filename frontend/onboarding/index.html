@@ -1,21 +1,19 @@
 <!DOCTYPE html>
-<!-- this is a comment -->
- <!-- Screen 1: Create account -->
- <html lang = "en">
+<!-- Screen 1: Create account -->
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <title>Welcome to yournews</title>
         <style>
-        * {  /*The * means "apply this to every single element on the page.*/
+        * {
             box-sizing: border-box;
-            margin: 0; /*browsers add default spacing around everything. This resets all of it to zero so you start with a blank slate.*/
+            margin: 0;
             padding: 0;
-            font-family: -apple-system, sans-serif; /* uses the system font*/
+            font-family: -apple-system, sans-serif;
         }
 
         body {
             background: #f5f5f5;
-            /* centres everything on the page */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -38,18 +36,32 @@
             margin-bottom: 8px;
         }
 
+        h2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-top: 8px;
+        }
+
         label {
             font-size: 14px;
             color: #444;
             font-weight: 500;
         }
 
-        input {
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 16px;
+        }
+
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
         }
 
         button {
@@ -62,23 +74,95 @@
             cursor: pointer;
             margin-top: 8px;
         }
-</style>
+
+        p {
+            font-size: 14px;
+            color: #888;
+            margin-top: -8px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+        </style>
     </head>
     <body>
-        <form>
-            <h1>Create your account</h1>
 
-            <label>Full name</label>
-            <input type="text" placeholder="Your name">
+        <!-- Screen 1: Create account -->
+        <div id="screen-1" class="screen active">
+            <form>
+                <h1>Create your account</h1>
+                <p>Your personalised briefing starts here.</p>
 
-            <label>Email</label>
-            <input type="email" placeholder="you@email.com">
+                <label>Full name</label>
+                <input type="text" placeholder="Your name">
 
-            <label>Password</label>
-            <input type="password" placeholder="At least 8 characters">
+                <label>Email</label>
+                <input type="email" placeholder="you@email.com">
 
-            <button type="submit">Create account</button>
+                <label>Password</label>
+                <input type="password" placeholder="At least 8 characters">
 
-        </form>
-</body>
+                <button type="button" onclick="nextScreen(1)">Continue</button>
+            </form>
+        </div>
+
+        <!-- Screen 2: News sources -->
+        <div id="screen-2" class="screen">
+            <form>
+                <h1>Where do you get your news?</h1>
+                <p>Pick all that apply.</p>
+
+                <h2>Newspapers & magazines</h2>
+                <label><input type="checkbox" value="NYT"> New York Times</label>
+                <label><input type="checkbox" value="WaPo"> Washington Post</label>
+                <label><input type="checkbox" value="Guardian"> The Guardian</label>
+                <label><input type="checkbox" value="FT"> Financial Times</label>
+                <label><input type="checkbox" value="Economist"> The Economist</label>
+                <label><input type="checkbox" value="WSJ"> Wall Street Journal</label>
+                <label><input type="checkbox" value="Bloomberg"> Bloomberg</label>
+                <label><input type="checkbox" value="Reuters"> Reuters</label>
+
+                <h2>Tech & science</h2>
+                <label><input type="checkbox" value="TechCrunch"> TechCrunch</label>
+                <label><input type="checkbox" value="Ars"> Ars Technica</label>
+                <label><input type="checkbox" value="Verge"> The Verge</label>
+                <label><input type="checkbox" value="Wired"> Wired</label>
+                <label><input type="checkbox" value="MIT"> MIT Technology Review</label>
+                <label><input type="checkbox" value="Nature"> Nature</label>
+
+                <h2>Newsletters & podcasts</h2>
+                <label><input type="checkbox" value="MorningBrew"> Morning Brew</label>
+                <label><input type="checkbox" value="Hustle"> The Hustle</label>
+                <label><input type="checkbox" value="Axios"> Axios</label>
+                <label><input type="checkbox" value="Substack"> Substack</label>
+
+                <h2>Social & discovery</h2>
+                <label><input type="checkbox" value="Reddit"> Reddit</label>
+                <label><input type="checkbox" value="Twitter"> Twitter/X</label>
+                <label><input type="checkbox" value="HN"> Hacker News</label>
+                <label><input type="checkbox" value="TikTok"> TikTok</label>
+
+                <h2>Honestly none</h2>
+                <label><input type="checkbox" value="None"> I don't really follow news yet</label>
+
+                <button type="button" onclick="nextScreen(2)">Continue</button>
+            </form>
+        </div>
+
+        <!-- JavaScript goes here, at the bottom, before </body> -->
+        <script>
+            function nextScreen(current) {
+                // hide current screen
+                document.getElementById('screen-' + current).classList.remove('active');
+                // show next screen
+                document.getElementById('screen-' + (current + 1)).classList.add('active');
+            }
+        </script>
+
+    </body>
 </html>
