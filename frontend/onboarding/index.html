@@ -150,10 +150,12 @@
                 <h2>Honestly none</h2>
                 <label><input type="checkbox" value="None"> I don't really follow news yet</label>
 
+                <button type="button" onclick="backScreen(2)">Back</button>
                 <button type="button" onclick="nextScreen(2)">Continue</button>
             </form>
+        <!--
         </div>
-                <!-- Screen 3: Your interests -->
+                
         <div id="screen-3" class="screen">
             <form>
                 <h1>What are you interested in?</h1>
@@ -170,9 +172,11 @@
                 <label><input type="checkbox" value="Environment"> Environment & climate</label>
                 <label><input type="checkbox" value="Entertainment"> Film, music & entertainment</label>
 
+                <button type="button" onclick="backScreen(3)">Back</button>
                 <button type="button" onclick="nextScreen(3)">Continue</button>
             </form>
         </div>
+        -->
                 <!-- Screen 3: Your interests -->
         <div id="screen-3" class="screen">
             <form>
@@ -201,7 +205,9 @@
                     People, companies, topics — anything you want us to track.
                 </p>
 
+                <button type="button" onclick="backScreen(3)">Back</button>
                 <button type="button" onclick="nextScreen(3)">Continue</button>
+                
             </form>
         </div>
 
@@ -213,7 +219,15 @@
                 // show next screen
                 document.getElementById('screen-' + (current + 1)).classList.add('active');
             }
+            function backScreen(current) {
+                // hide current screen
+                document.getElementById('screen-' + current).classList.remove('active');
+                // show previous screen
+                document.getElementById('screen-' + (current - 1)).classList.add('active');
+            }
         </script>
+
+
 
     </body>
 </html>
