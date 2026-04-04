@@ -75,6 +75,25 @@
             margin-top: 8px;
         }
 
+        .back-arrow {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+            padding: 8px;
+        }
+
+        .sub-options {
+            display: none;
+            padding-left: 24px;
+            border-left: 3px solid #1a4a7a;
+            margin-bottom: 8px;
+        }
+
         p {
             font-size: 14px;
             color: #888;
@@ -153,31 +172,116 @@
                 <button type="button" onclick="backScreen(2)">Back</button>
                 <button type="button" onclick="nextScreen(2)">Continue</button>
             </form>
-        <!--
+        
         </div>
-                
+      
+
+        <!-- Screen 3: Your interests -->
         <div id="screen-3" class="screen">
             <form>
                 <h1>What are you interested in?</h1>
                 <p>Pick at least 3 topics.</p>
 
-                <label><input type="checkbox" value="AI"> Technology & AI</label>
-                <label><input type="checkbox" value="Business"> Business & startups</label>
-                <label><input type="checkbox" value="Politics"> Politics & world news</label>
-                <label><input type="checkbox" value="Science"> Science & research</label>
-                <label><input type="checkbox" value="Culture"> Culture & arts</label>
-                <label><input type="checkbox" value="Sports"> Sports</label>
-                <label><input type="checkbox" value="Finance"> Finance & markets</label>
-                <label><input type="checkbox" value="Health"> Health & wellness</label>
-                <label><input type="checkbox" value="Environment"> Environment & climate</label>
-                <label><input type="checkbox" value="Entertainment"> Film, music & entertainment</label>
+                <label><input type="checkbox" value="AI" onchange="toggleDropdown('dd-ai', this)"> Technology & AI</label>
+                <div id="dd-ai" class="sub-options">
+                    <label><input type="checkbox" value="llms"> LLMs</label>
+                    <label><input type="checkbox" value="hardware"> Hardware & chips</label>
+                    <label><input type="checkbox" value="ai-startups"> AI startups</label>
+                    <label><input type="checkbox" value="ai-policy"> AI policy</label>
+                    <label><input type="checkbox" value="cybersecurity"> Cybersecurity</label>
+                </div>
 
-                <button type="button" onclick="backScreen(3)">Back</button>
+                <label><input type="checkbox" value="Business" onchange="toggleDropdown('dd-business', this)"> Business & startups</label>
+                <div id="dd-business" class="sub-options">
+                    <label><input type="checkbox" value="vc"> Venture capital</label>
+                    <label><input type="checkbox" value="founders"> Founders & CEOs</label>
+                    <label><input type="checkbox" value="ipos"> IPOs & M&A</label>
+                    <label><input type="checkbox" value="smallbiz"> Small business</label>
+                
+                </div>
+
+                <label><input type="checkbox" value="Politics" onchange="toggleDropdown('dd-politics', this)"> Politics & world news</label>
+                <div id="dd-politics" class="sub-options">
+                    <label><input type="checkbox" value="us"> US politics</label>
+                    <label><input type="checkbox" value="uk"> UK politics</label>
+                    <label><input type="checkbox" value="europe"> Europe</label>
+                    <label><input type="checkbox" value="middleeast"> Middle East</label>
+                    <label><input type="checkbox" value="asia"> Asia</label>
+                </div>
+
+                <label><input type="checkbox" value="Science" onchange="toggleDropdown('dd-science', this)"> Science & research</label>
+                <div id="dd-science" class="sub-options">
+                    <label><input type="checkbox" value="space"> Space</label>
+                    <label><input type="checkbox" value="climate-sci"> Climate science</label>
+                    <label><input type="checkbox" value="biology"> Biology</label>
+                    <label><input type="checkbox" value="physics"> Physics</label>
+                    <label><input type="checkbox" value="medicine"> Medicine</label>
+                </div>
+
+                <label><input type="checkbox" value="Culture" onchange="toggleDropdown('dd-culture', this)"> Culture & arts</label>
+                <div id="dd-culture" class="sub-options">
+                    <label><input type="checkbox" value="film"> Film</label>
+                    <label><input type="checkbox" value="music"> Music</label>
+                    <label><input type="checkbox" value="architecture"> Architecture</label>
+                    <label><input type="checkbox" value="literature"> Literature</label>
+                    <label><input type="checkbox" value="fashion"> Fashion</label>
+                </div>
+
+                <label><input type="checkbox" value="Sports" onchange="toggleDropdown('dd-sports', this)"> Sports</label>
+                <div id="dd-sports" class="sub-options">
+                    <label><input type="checkbox" value="soccer"> Football/Soccer</label>
+                    <label><input type="checkbox" value="basketball"> Basketball</label>
+                    <label><input type="checkbox" value="tennis"> Tennis</label>
+                    <label><input type="checkbox" value="f1"> Formula 1</label>
+                    <label><input type="checkbox" value="olympics"> Olympics</label>
+                </div>
+
+                <label><input type="checkbox" value="Finance" onchange="toggleDropdown('dd-finance', this)"> Finance & markets</label>
+                <div id="dd-finance" class="sub-options">
+                    <label><input type="checkbox" value="stocks"> Stocks</label>
+                    <label><input type="checkbox" value="crypto"> Crypto</label>
+                    <label><input type="checkbox" value="realestate"> Real estate</label>
+                    <label><input type="checkbox" value="personalfin"> Personal finance</label>
+                    <label><input type="checkbox" value="economics"> Economics</label>
+                </div>
+
+                <label><input type="checkbox" value="Health" onchange="toggleDropdown('dd-health', this)"> Health & wellness</label>
+                <div id="dd-health" class="sub-options">
+                    <label><input type="checkbox" value="mentalhealth"> Mental health</label>
+                    <label><input type="checkbox" value="nutrition"> Nutrition</label>
+                    <label><input type="checkbox" value="fitness"> Fitness</label>
+                    <label><input type="checkbox" value="medresearch"> Medical research</label>
+                </div>
+
+                <label><input type="checkbox" value="Environment" onchange="toggleDropdown('dd-environment', this)"> Environment & climate</label>
+                <div id="dd-environment" class="sub-options">
+                    <label><input type="checkbox" value="climatepolicy"> Climate policy</label>
+                    <label><input type="checkbox" value="renewables"> Renewable energy</label>
+                    <label><input type="checkbox" value="wildlife"> Wildlife</label>
+                    <label><input type="checkbox" value="sustainability"> Sustainability</label>
+                </div>
+
+                <label><input type="checkbox" value="Entertainment" onchange="toggleDropdown('dd-entertainment', this)"> Film, music & entertainment</label>
+                <div id="dd-entertainment" class="sub-options">
+                    <label><input type="checkbox" value="movies"> Movies</label>
+                    <label><input type="checkbox" value="tvshows"> TV shows</label>
+                    <label><input type="checkbox" value="ent-music"> Music</label>
+                    <label><input type="checkbox" value="gaming"> Gaming</label>
+                    <label><input type="checkbox" value="celebrity"> Celebrity news</label>
+                </div>
+
+                <label style="margin-top: 16px;">Anything specific you follow?</label>
+                <input type="text" id="niche-interests" placeholder="e.g. Jensen Huang, NVIDIA, Formula 1, Taylor Swift...">
+                <p style="margin-top: -8px;">People, companies, topics — anything you want us to track.</p>
+
+                <button type="button" class="back-arrow" onclick="backScreen(3)">←</button>
                 <button type="button" onclick="nextScreen(3)">Continue</button>
+
             </form>
         </div>
-        -->
-                <!-- Screen 3: Your interests -->
+
+        <!--
+                 Screen 3: Your interests
         <div id="screen-3" class="screen">
             <form>
                 <h1>What are you interested in?</h1>
@@ -195,7 +299,7 @@
                 <label><input type="checkbox" value="Entertainment"> Film, music & entertainment</label>
 
                 <label style="margin-top: 16px;">
-                    Anything specific you follow?
+                    Anything that wasn't mentioned above?
                 </label>
                 <input 
                     type="text" 
@@ -210,7 +314,7 @@
                 
             </form>
         </div>
-
+        -->
         <!-- JavaScript goes here, at the bottom, before </body> -->
         <script>
             function nextScreen(current) {
@@ -224,6 +328,10 @@
                 document.getElementById('screen-' + current).classList.remove('active');
                 // show previous screen
                 document.getElementById('screen-' + (current - 1)).classList.add('active');
+            }
+            function toggleDropdown(id, checkbox) {
+                const dropdown = document.getElementById(id);
+                dropdown.style.display = checkbox.checked ? 'block' : 'none';
             }
         </script>
 
