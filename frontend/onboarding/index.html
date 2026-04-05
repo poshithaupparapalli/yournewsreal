@@ -284,7 +284,7 @@
                 <p style="margin-top: -8px;">People, companies, topics — anything you want us to track.</p>
 
                 <button type="button" class="back-arrow" onclick="backScreen(3)">←</button>
-                <button type="button" onclick="nextScreen(3)">Continue</button>
+                <button type="button" onclick="submitOnboarding()">Continue</button>
 
             </form>
         </div>
@@ -351,8 +351,18 @@
                     sources: [...document.querySelectorAll('#screen-2 input[type="checkbox"]:checked')]
                     .map(el => el.value),
                     //third page interest info
+                    interests: Object.fromEntries(
+                        [...document.querySelectorAll('#screen-3 > form > label > input[type="checkbox"]:checked')]
+                        .map(el => [
+                            el.value,
+                            [...document.querySelectorAll(`#dd-${el.value.toLowerCase()} input[type="checkbox"]:checked`)]
+                            .map(sub => sub.value)
+                        ])
+                    ),
+                    /*
                     interests: [...document.querySelectorAll('#screen-3 input[type="checkbox"]:checked')]
                     .map(el => el.value),
+                    */
                     niche_entities: document.getElementById('niche-interests').value,
 
                     //haven't created the front end for these yet, but for now they are hardcoded
