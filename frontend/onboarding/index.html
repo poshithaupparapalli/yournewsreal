@@ -342,6 +342,44 @@
                 const dropdown = document.getElementById(id);
                 dropdown.style.display = checkbox.checked ? 'block' : 'none';
             }
+            async function submitOnboarding(){
+                const payload = {
+                    name: document.querySelector('#screen-1 input[type="text"]').value,
+                    email: document.querySelector('#screen-1 input[type="email"]').value,
+                    password: document.querySelector('#screen-1 input[type="password"]').value,
+                    //second page article interest info
+                    sources: [...document.querySelectorAll('#screen-2 input[type="checkbox"]:checked')]
+                    .map(el => el.value),
+                    //third page interest info
+                    interests: [...document.querySelectorAll('#screen-3 input[type="checkbox"]:checked')]
+                    .map(el => el.value),
+                    niche_entities: document.getElementById('niche-interests').value,
+
+                    //haven't created the front end for these yet, but for now they are hardcoded
+                    reading_time: "5",
+                    format: "bullets",
+                    delivery_time: "08:00",
+                    read_reason: "stay informed"
+
+
+
+                };
+
+                const res = await fetch("http://localhost:8000/onboarding", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if(res.ok){
+                    window.location.href = "../briefing/index.html";  
+                }else{
+                    alert("Error: " + data.detail);
+                }
+
+            }
         </script>
 
 
