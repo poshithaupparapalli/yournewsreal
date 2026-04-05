@@ -17,7 +17,7 @@ class OnboardingData(BaseModel):
       email: str          # must be a string
       password: str       # must be a string
       sources: List[str]  # must be a list of strings e.g. ["NYT", "BBC"]                   
-      interests: List[str]# must be a list of strings e.g. ["AI", "Finance"]
+      interests: dict[str, List[str]]   # must be a list of strings e.g. ["AI", "Finance"]
       niche_entities: str # comma separated string e.g. "Jensen Huang, NVIDIA"              
       reading_time: str                                                                     
       format: str                                                                           
@@ -74,12 +74,24 @@ async def onboarding(data: OnboardingData):
       # weight starts at 1.0 for everyone — it will change as they use the app
       # parent_topic is null for now — sub-interests will fill this in later                
       # source is "checkbox" because these came from the checkbox list                      
+      
+      if data.interests:
+            rows = []
+            for parent, subtopics in data.interests.items():
+                rows.append({"user_id": user_id, "topic": parent, "parent_topic": None, "weight": 1.0, "source": "checkbox"})
+                for sub in subtopics:
+                    rows.append({"user_id": user_id, "topic": sub, "parent_topic": parent, "weight": 1.0, "source": "checkbox"})
+            supabase.table("user_interests").insert(rows).execute()
+      
+
+      #old interests format was used for not categorizing sub interests under parent interests
+      """
       if data.interests:                                                                    
           supabase.table("user_interests").insert(                                          
               [{"user_id": user_id, "topic": t, "weight": 1.0, "parent_topic": None,        
   "source": "checkbox"} for t in data.interests]                                            
           ).execute()
-                                                                                            
+        """                                                                                   
       # niche_entities comes in as one string: "Jensen Huang, NVIDIA, Federal Reserve"      
       # .split(",") breaks it into a list: ["Jensen Huang", " NVIDIA", " Federal Reserve"]
       # .strip() removes the spaces around each name                                        
