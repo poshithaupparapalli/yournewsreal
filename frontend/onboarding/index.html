@@ -468,7 +468,7 @@
             const data = await res.json();
 
             if (res.ok) {
-                window.location.href = '../briefing/index.html';
+                window.location.href = `../briefing/index.html?name=${encodeURIComponent(payload.name)}`;
             } else {
                 alert('Error: ' + data.detail);
             }

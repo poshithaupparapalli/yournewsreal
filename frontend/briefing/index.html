@@ -1,0 +1,117 @@
+<!DOCTYPE html>                                                                                                                                           
+  <html lang="en">                                                                                                                                          
+  <head>                                                                                                                                                    
+      <meta charset="UTF-8">                                                                                                                                
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>yournews</title>
+      <style>                                                                                                                                               
+   
+          /* Reset */                                                                                                                                       
+          * {     
+              box-sizing: border-box;
+              margin: 0;                                                                                                                                    
+              padding: 0;
+          }                                                                                                                                                 
+                  
+          /* Full page — centers everything vertically and horizontally */                                                                                  
+          body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;                                                                       
+              background: #f0f0f0;                                                                                                                          
+              min-height: 100vh;
+              display: flex;                                                                                                                                
+              justify-content: center;
+              align-items: center;
+          }                                                                                                                                                 
+   
+          /* The card — same style as onboarding */                                                                                                         
+          .card { 
+              background: #fff;                                                                                                                             
+              max-width: 460px;
+              width: 100%;                                                                                                                                  
+              border-radius: 20px;
+              padding: 48px 44px;
+              box-shadow: 0 2px 24px rgba(0,0,0,0.07);                                                                                                      
+          }
+                                                                                                                                                            
+          /* Small label at the top — like a timestamp or tag */                                                                                            
+          .label {                                                                                                                                          
+              font-size: 11px;                                                                                                                              
+              font-weight: 500;
+              color: #aaa;
+              text-transform: uppercase;
+              letter-spacing: 0.07em;
+              margin-bottom: 24px;                                                                                                                          
+          }
+                                                                                                                                                            
+          /* Main greeting — uses their first name */                                                                                                       
+          h1 {
+              font-size: 22px;                                                                                                                              
+              font-weight: 500;
+              color: #111;
+              line-height: 1.35;
+              margin-bottom: 12px;                                                                                                                          
+          }
+                                                                                                                                                            
+          /* Subtext — warm and human */
+          p {
+              font-size: 14px;
+              color: #888;                                                                                                                                  
+              line-height: 1.7;
+          }                                                                                                                                                 
+                  
+          /* Subtle divider line */                                                                                                                         
+          .divider {
+              border: none;                                                                                                                                 
+              border-top: 1px solid #f0f0f0;
+              margin: 32px 0;
+          }
+
+          /* Footer note */                                                                                                                                 
+          .footer {
+              font-size: 12px;                                                                                                                              
+              color: #bbb;
+              line-height: 1.6;
+          }                                                                                                                                                 
+   
+      </style>                                                                                                                                              
+  </head>         
+  <body>
+      <div class="card">
+
+          <!-- Small tag at top -->
+          <div class="label">yournews</div>
+                                                                                                                                                            
+          <!-- Greeting — first name is read from the URL parameter -->                                                                                     
+          <h1 id="greeting">We're on it.</h1>                                                                                                               
+                                                                                                                                                            
+          <!-- Main message -->                                                                                                                             
+          <p>We're reading the internet for you. Check back tomorrow morning.</p>
+                                                                                                                                                            
+          <hr class="divider">
+
+          <!-- Footer note — sets expectations -->                                                                                                          
+          <p class="footer">
+              Your briefing is built overnight using articles from across the web,                                                                          
+              ranked to match exactly what you care about.                                                                                                  
+          </p>                                                                                                                                              
+                                                                                                                                                            
+      </div>                                                                                                                                                
+                  
+      <script>
+          // Read the user's name from the URL
+          // When we redirect here from onboarding, we'll pass ?name=Poshitha in the URL                                                                    
+          // So the URL looks like: briefing/index.html?name=Poshitha                                                                                       
+          const params = new URLSearchParams(window.location.search);                                                                                       
+          const name = params.get('name');                                                                                                                  
+                                                                                                                                                            
+          // If we have a name, show a personalised greeting
+          // Otherwise fall back to the generic message                                                                                                     
+          if (name) {                                                                                                                                       
+              const firstName = name.split(' ')[0];
+              document.getElementById('greeting').textContent =                                                                                             
+                  `Hey ${firstName}, we're on it.`;                                                                                                         
+          }
+      </script>                                                                                                                                             
+                  
+  </body>
+  </html>
