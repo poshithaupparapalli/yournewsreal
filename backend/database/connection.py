@@ -1,10 +1,15 @@
 import os
-from dotenv import load_dotenv 
-from supabase import create_client, Client 
-load_dotenv() #reads your .env file and loads the two variables into memory
+from dotenv import load_dotenv
+from supabase import create_client, Client
 
-SUPABASE_URL = os.getenv ("https://lnbnksvxiuhtirjzjlkv.supabase.co") #grabs each value by name
+# Reads the .env file and loads SUPABASE_URL and SUPABASE_KEY into memory
+load_dotenv()
 
-SUPABASE_KEY = os.getenv("sb_publishable_W45ix-Q3NifdQ6B0zSNLDQ_UKt7LDPu")
+# os.getenv("SUPABASE_URL") means: go find the variable named SUPABASE_URL in the .env file
+# This way the real values never appear in your code — only the variable names do
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-supabase: Client = create_client("https://lnbnksvxiuhtirjzjlkv.supabase.co","sb_publishable_W45ix-Q3NifdQ6B0zSNLDQ_UKt7LDPu" )  #creates the Supabase connection using those credentials
+# Create the Supabase client using those values
+# This is the object every other file imports to talk to the database
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
