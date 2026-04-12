@@ -26,3 +26,12 @@ app.include_router(auth_router)
 @app.get("/")                                                                             
 def root():     
       return {"status": "YourNews backend is running"} 
+
+
+
+
+
+
+
+
+
