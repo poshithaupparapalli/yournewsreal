@@ -14,7 +14,7 @@ Status: DECIDED
 ## Decision 2: Initial weights
 Date: April 1q 2026
 Decision: All interests start equal weight - still havents decided
-Status: DECIDED
+Status: TBD
 
 ## Decision 3: Agent r ole
 Date: TBD
