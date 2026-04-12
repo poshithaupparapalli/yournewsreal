@@ -1,105 +1,68 @@
 <!DOCTYPE html>
-<!-- Screen 1: Create account -->
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Welcome to yournews</title>
-        <style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>yournews</title>
+    <style>
+
+        /* ─── RESET ───────────────────────────────────────────────────
+           Remove default browser spacing and sizing quirks             */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, sans-serif;
         }
 
+        /* ─── BODY ────────────────────────────────────────────────────
+           Light grey background. Flex centers the card on the page.    */
         body {
-            background: #f5f5f5;
+            background: #f0f0f0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            padding: 24px;
         }
 
-        form {
-            background: rgb(255, 255, 255);
-            padding: 40px;
-            border-radius: 12px;
-            width: 420px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        h1 {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        h2 {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-top: 8px;
-        }
-
-        label {
-            font-size: 14px;
-            color: #444;
-            font-weight: 500;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
+        /* ─── CARD ────────────────────────────────────────────────────
+           The white container that holds each screen.
+           max-width 460px keeps it cozy — not too wide, not cramped.
+           The shadow is very subtle so it feels grounded not floating.  */
+        .card {
+            background: #ffffff;
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
+            max-width: 460px;
+            border-radius: 20px;
+            padding: 48px 44px;
+            box-shadow: 0 2px 24px rgba(0, 0, 0, 0.07);
         }
 
-        input[type="checkbox"] {
-            width: auto;
-            margin-right: 8px;
+        /* ─── DOTS ────────────────────────────────────────────────────
+           Three small circles at the top — show which screen you're on.
+           Active dot = black. Inactive = light grey.                   */
+        .dots {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 40px;
         }
 
-        button {
-            background: #1a4a7a;
-            color: white;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 8px;
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #d0d0d0;
+            transition: background 0.3s ease;
         }
 
-        .back-arrow {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #333;
-            padding: 8px;
+        .dot.active {
+            background: #111;
         }
 
-        .sub-options {
-            display: none;
-            padding-left: 24px;
-            border-left: 3px solid #1a4a7a;
-            margin-bottom: 8px;
-        }
-
-        p {
-            font-size: 14px;
-            color: #888;
-            margin-top: -8px;
-        }
-
+        /* ─── SCREENS ─────────────────────────────────────────────────
+           All screens are hidden by default (display: none).
+           Only the one with class "active" is shown.                   */
         .screen {
             display: none;
         }
@@ -107,294 +70,411 @@
         .screen.active {
             display: block;
         }
-        </style>
-    </head>
-    <body>
 
-        <!-- Screen 1: Create account -->
+        /* ─── HEADINGS ────────────────────────────────────────────────
+           Weight 500 keeps it readable without feeling heavy.          */
+        h1 {
+            font-size: 20px;
+            font-weight: 500;
+            color: #111;
+            line-height: 1.35;
+            margin-bottom: 8px;
+        }
+
+        /* ─── SUBTITLE ────────────────────────────────────────────────
+           Smaller grey text below each heading — adds context.         */
+        .subtitle {
+            font-size: 13px;
+            color: #888;
+            line-height: 1.6;
+            margin-bottom: 6px;
+        }
+
+        /* ─── EXAMPLE TEXT ────────────────────────────────────────────
+           The greyed-out example below the subtitle.
+           Italic and lighter so it doesn't compete with real content.  */
+        .example {
+            font-size: 12px;
+            color: #bbb;
+            font-style: italic;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        /* ─── LABELS ──────────────────────────────────────────────────
+           Small uppercase labels above each input on screen 1.         */
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 6px;
+        }
+
+        /* ─── TEXT INPUTS ─────────────────────────────────────────────
+           No visible box — just a bottom border line.
+           Feels clean and editorial, like the inspo sites you shared.  */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px 0;
+            border: none;
+            border-bottom: 1px solid #e8e8e8;
+            font-size: 15px;
+            font-family: inherit;
+            color: #111;
+            background: transparent;
+            outline: none;
+            margin-bottom: 28px;
+            transition: border-color 0.2s;
+        }
+
+        /* Bottom border turns black when you click into the field      */
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-bottom-color: #111;
+        }
+
+        /* ─── TEXT AREAS ──────────────────────────────────────────────
+           Open and inviting. Light background so they feel like a
+           journal or notepad — not a cramped web form.                 */
+        textarea {
+            width: 100%;
+            min-height: 110px;
+            padding: 14px;
+            border: 1px solid #e8e8e8;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            color: #111;
+            resize: vertical;
+            outline: none;
+            line-height: 1.7;
+            background: #fafafa;
+            transition: border-color 0.2s, background 0.2s;
+            margin-bottom: 28px;
+        }
+
+        textarea:focus {
+            border-color: #111;
+            background: #fff;
+        }
+
+        textarea::placeholder {
+            color: #ccc;
+        }
+
+        /* ─── SECOND QUESTION BLOCK ───────────────────────────────────
+           The second question on screen 2. Adds top spacing.           */
+        .question-block {
+            margin-top: 4px;
+        }
+
+        /* ─── BUTTON ──────────────────────────────────────────────────
+           Solid black. Clean. Sharp enough to feel technical.          */
+        button.primary {
+            width: 100%;
+            padding: 13px;
+            background: #111;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            letter-spacing: 0.02em;
+            transition: background 0.2s;
+        }
+
+        button.primary:hover {
+            background: #333;
+        }
+
+        /* ─── NODE MAP CANVAS ─────────────────────────────────────────
+           This is the Obsidian-style interest graph on screen 3.
+           Canvas is drawn by JavaScript below.                         */
+        #interest-map {
+            width: 100%;
+            height: 240px;
+            border-radius: 12px;
+            background: #f8f8f8;
+            margin: 16px 0 20px;
+            display: block;
+        }
+
+        /* ─── SUMMARY BLOCKS ──────────────────────────────────────────
+           Light grey cards on screen 3 that show what they entered.    */
+        .summary-block {
+            background: #f8f8f8;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+        }
+
+        .summary-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 6px;
+        }
+
+        .summary-text {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="card">
+
+        <!-- ── DOT INDICATORS ──────────────────────────────────────────
+             Three dots at the top. JavaScript updates which is active.  -->
+        <div class="dots">
+            <div class="dot active" id="dot-1"></div>
+            <div class="dot" id="dot-2"></div>
+            <div class="dot" id="dot-3"></div>
+        </div>
+
+        <!-- ── SCREEN 1: CREATE ACCOUNT ────────────────────────────────
+             Name, email, password. Continue moves to screen 2.          -->
         <div id="screen-1" class="screen active">
-            <form>
-                <h1>Create your account</h1>
-                <p>Your personalised briefing starts here.</p>
 
-                <label>Full name</label>
-                <input type="text" placeholder="Your name">
+            <h1>Create your account</h1>
+            <p class="subtitle" style="margin-bottom: 32px;">Your personalised briefing starts here.</p>
 
-                <label>Email</label>
-                <input type="email" placeholder="you@email.com">
+            <label>Full name</label>
+            <input type="text" id="name" placeholder="Your name">
 
-                <label>Password</label>
-                <input type="password" placeholder="At least 8 characters">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="you@email.com">
 
-                <button type="button" onclick="nextScreen(1)">Continue</button>
-            </form>
+            <label>Password</label>
+            <input type="password" id="password" placeholder="At least 8 characters">
+
+            <button class="primary" onclick="goToScreen(2)">Continue</button>
+
         </div>
 
-        <!-- Screen 2: News sources -->
+        <!-- ── SCREEN 2: YOUR INTERESTS ────────────────────────────────
+             Two open text areas. No checkboxes. The user writes freely.
+             LLM will parse and categorize this later in the background.  -->
         <div id="screen-2" class="screen">
-            <form>
-                <h1>Where do you get your news?</h1>
-                <p>Pick all that apply.</p>
 
-                <h2>Newspapers & magazines</h2>
-                <label><input type="checkbox" value="NYT"> New York Times</label>
-                <label><input type="checkbox" value="WaPo"> Washington Post</label>
-                <label><input type="checkbox" value="Guardian"> The Guardian</label>
-                <label><input type="checkbox" value="FT"> Financial Times</label>
-                <label><input type="checkbox" value="Economist"> The Economist</label>
-                <label><input type="checkbox" value="WSJ"> Wall Street Journal</label>
-                <label><input type="checkbox" value="Bloomberg"> Bloomberg</label>
-                <label><input type="checkbox" value="Reuters"> Reuters</label>
+            <h1>What are you interested in staying informed on?</h1>
+            <p class="subtitle">Be as specific as you want. Name people, companies, topics, or anything you follow closely.</p>
+            <p class="example">e.g. Jensen Huang, cookie dough, NVIDIA, AI policy, Formula 1, climate science, Demis Hassabis</p>
 
-                <h2>Tech & science</h2>
-                <label><input type="checkbox" value="TechCrunch"> TechCrunch</label>
-                <label><input type="checkbox" value="Ars"> Ars Technica</label>
-                <label><input type="checkbox" value="Verge"> The Verge</label>
-                <label><input type="checkbox" value="Wired"> Wired</label>
-                <label><input type="checkbox" value="MIT"> MIT Technology Review</label>
-                <label><input type="checkbox" value="Nature"> Nature</label>
+            <textarea id="interests" placeholder="Tell us what you follow..."></textarea>
 
-                <h2>Newsletters & podcasts</h2>
-                <label><input type="checkbox" value="MorningBrew"> Morning Brew</label>
-                <label><input type="checkbox" value="Hustle"> The Hustle</label>
-                <label><input type="checkbox" value="Axios"> Axios</label>
-                <label><input type="checkbox" value="Substack"> Substack</label>
+            <div class="question-block">
+                <h1>What do you wish you understood better?</h1>
+                <p class="subtitle">Things you want to learn more about.</p>
+                <p class="example">e.g. geopolitics, quantum computing, how central banks work</p>
 
-                <h2>Social & discovery</h2>
-                <label><input type="checkbox" value="Reddit"> Reddit</label>
-                <label><input type="checkbox" value="Twitter"> Twitter/X</label>
-                <label><input type="checkbox" value="HN"> Hacker News</label>
-                <label><input type="checkbox" value="TikTok"> TikTok</label>
+                <textarea id="learning-goals" placeholder="Things you want to understand more deeply..."></textarea>
+            </div>
 
-                <h2>Honestly none</h2>
-                <label><input type="checkbox" value="None"> I don't really follow news yet</label>
+            <button class="primary" onclick="goToScreen(3)">Continue</button>
 
-                <button type="button" onclick="backScreen(2)">Back</button>
-                <button type="button" onclick="nextScreen(2)">Continue</button>
-            </form>
-        
         </div>
-      
 
-        <!-- Screen 3: Your interests -->
+        <!-- ── SCREEN 3: YOU'RE IN ──────────────────────────────────────
+             Confirmation screen. Shows their name, a node map of their
+             interests drawn on a canvas, and a summary of what they typed.
+             Submit button sends everything to the backend.               -->
         <div id="screen-3" class="screen">
-            <form>
-                <h1>What are you interested in?</h1>
-                <p>Pick at least 3 topics.</p>
 
-                <label><input type="checkbox" value="AI" onchange="toggleDropdown('dd-ai', this)"> Technology & AI</label>
-                <div id="dd-ai" class="sub-options">
-                    <label><input type="checkbox" value="llms"> LLMs</label>
-                    <label><input type="checkbox" value="hardware"> Hardware & chips</label>
-                    <label><input type="checkbox" value="ai-startups"> AI startups</label>
-                    <label><input type="checkbox" value="ai-policy"> AI policy</label>
-                    <label><input type="checkbox" value="cybersecurity"> Cybersecurity</label>
-                    <input type="text" placeholder="Add your own...">
-                </div>
+            <h1>You're all set.</h1>
+            <p class="subtitle" style="margin-bottom: 4px;">Your first briefing arrives tomorrow morning.</p>
 
-                <label><input type="checkbox" value="Business" onchange="toggleDropdown('dd-business', this)"> Business & startups</label>
-                <div id="dd-business" class="sub-options">
-                    <label><input type="checkbox" value="vc"> Venture capital</label>
-                    <label><input type="checkbox" value="founders"> Founders & CEOs</label>
-                    <label><input type="checkbox" value="ipos"> IPOs & M&A</label>
-                    <label><input type="checkbox" value="smallbiz"> Small business</label>
-                    <input type="text" placeholder="Add your own...">
-                </div>
+            <!-- The node map — drawn by drawInterestMap() in JavaScript -->
+            <canvas id="interest-map"></canvas>
 
-                <label><input type="checkbox" value="Politics" onchange="toggleDropdown('dd-politics', this)"> Politics & world news</label>
-                <div id="dd-politics" class="sub-options">
-                    <label><input type="checkbox" value="us"> US politics</label>
-                    <label><input type="checkbox" value="uk"> UK politics</label>
-                    <label><input type="checkbox" value="europe"> Europe</label>
-                    <label><input type="checkbox" value="middleeast"> Middle East</label>
-                    <label><input type="checkbox" value="asia"> Asia</label>
-                    <input type="text" placeholder="Add your own...">
-                </div>
+            <!-- Summary of what they entered — filled in by populateSummary() -->
+            <div class="summary-block">
+                <div class="summary-label">Your interests</div>
+                <div class="summary-text" id="summary-interests"></div>
+            </div>
 
-                <label><input type="checkbox" value="Science" onchange="toggleDropdown('dd-science', this)"> Science & research</label>
-                <div id="dd-science" class="sub-options">
-                    <label><input type="checkbox" value="space"> Space</label>
-                    <label><input type="checkbox" value="climate-sci"> Climate science</label>
-                    <label><input type="checkbox" value="biology"> Biology</label>
-                    <label><input type="checkbox" value="physics"> Physics</label>
-                    <label><input type="checkbox" value="medicine"> Medicine</label>
-                    <input type="text" placeholder="Add your own...">
-                </div>
+            <div class="summary-block">
+                <div class="summary-label">What you want to learn</div>
+                <div class="summary-text" id="summary-goals"></div>
+            </div>
 
-                <label><input type="checkbox" value="Culture" onchange="toggleDropdown('dd-culture', this)"> Culture & arts</label>
-                <div id="dd-culture" class="sub-options">
-                    <label><input type="checkbox" value="film"> Film</label>
-                    <label><input type="checkbox" value="music"> Music</label>
-                    <label><input type="checkbox" value="architecture"> Architecture</label>
-                    <label><input type="checkbox" value="literature"> Literature</label>
-                    <label><input type="checkbox" value="fashion"> Fashion</label>
-                    <input type="text" placeholder="Add your own...">
-                </div>
+            <button class="primary" onclick="submitOnboarding()" style="margin-top: 8px;">Submit</button>
 
-                <label><input type="checkbox" value="Sports" onchange="toggleDropdown('dd-sports', this)"> Sports</label>
-                <div id="dd-sports" class="sub-options">
-                    <label><input type="checkbox" value="soccer"> Football/Soccer</label>
-                    <label><input type="checkbox" value="basketball"> Basketball</label>
-                    <label><input type="checkbox" value="tennis"> Tennis</label>
-                    <label><input type="checkbox" value="f1"> Formula 1</label>
-                    <label><input type="checkbox" value="olympics"> Olympics</label>
-                    <input type="text" placeholder="Add your own...">
-                    <!-- its not getting saved to supabase (add your own)-->
-
-                </div>
-
-                <label><input type="checkbox" value="Finance" onchange="toggleDropdown('dd-finance', this)"> Finance & markets</label>
-                <div id="dd-finance" class="sub-options">
-                    <label><input type="checkbox" value="stocks"> Stocks</label>
-                    <label><input type="checkbox" value="crypto"> Crypto</label>
-                    <label><input type="checkbox" value="realestate"> Real estate</label>
-                    <label><input type="checkbox" value="personalfin"> Personal finance</label>
-                    <label><input type="checkbox" value="economics"> Economics</label>
-                    <input type="text" placeholder="Add your own...">
-                </div>
-
-                <label><input type="checkbox" value="Health" onchange="toggleDropdown('dd-health', this)"> Health & wellness</label>
-                <div id="dd-health" class="sub-options">
-                    <label><input type="checkbox" value="mentalhealth"> Mental health</label>
-                    <label><input type="checkbox" value="nutrition"> Nutrition</label>
-                    <label><input type="checkbox" value="fitness"> Fitness</label>
-                    <label><input type="checkbox" value="medresearch"> Medical research</label>
-                    <input type="text" placeholder="Add your own...">
-                </div>
-
-                <label><input type="checkbox" value="Environment" onchange="toggleDropdown('dd-environment', this)"> Environment & climate</label>
-                <div id="dd-environment" class="sub-options">
-                    <label><input type="checkbox" value="climatepolicy"> Climate policy</label>
-                    <label><input type="checkbox" value="renewables"> Renewable energy</label>
-                    <label><input type="checkbox" value="wildlife"> Wildlife</label>
-                    <label><input type="checkbox" value="sustainability"> Sustainability</label>
-                    <input type="text" placeholder="Add your own...">
-                </div>
-
-                <label><input type="checkbox" value="Entertainment" onchange="toggleDropdown('dd-entertainment', this)"> Film, music & entertainment</label>
-                <div id="dd-entertainment" class="sub-options">
-                    <label><input type="checkbox" value="movies"> Movies</label>
-                    <label><input type="checkbox" value="tvshows"> TV shows</label>
-                    <label><input type="checkbox" value="ent-music"> Music</label>
-                    <label><input type="checkbox" value="gaming"> Gaming</label>
-                    <label><input type="checkbox" value="celebrity"> Celebrity news</label>
-                    <input type="text" placeholder="Add your own...">
-                </div>
-
-                <label style="margin-top: 16px;">Anything specific you follow?</label>
-                <input type="text" id="niche-interests" placeholder="e.g. Jensen Huang, NVIDIA, Formula 1, Taylor Swift...">
-                <p style="margin-top: -8px;">People, companies, topics — anything you want us to track.</p>
-
-                <button type="button" class="back-arrow" onclick="backScreen(3)">←</button>
-                <button type="button" onclick="submitOnboarding()">Continue</button>
-
-            </form>
         </div>
 
-        <!--
-                 Screen 3: Your interests
-        <div id="screen-3" class="screen">
-            <form>
-                <h1>What are you interested in?</h1>
-                <p>Pick at least 3 topics.</p>
+    </div>
 
-                <label><input type="checkbox" value="AI"> Technology & AI</label>
-                <label><input type="checkbox" value="Business"> Business & startups</label>
-                <label><input type="checkbox" value="Politics"> Politics & world news</label>
-                <label><input type="checkbox" value="Science"> Science & research</label>
-                <label><input type="checkbox" value="Culture"> Culture & arts</label>
-                <label><input type="checkbox" value="Sports"> Sports</label>
-                <label><input type="checkbox" value="Finance"> Finance & markets</label>
-                <label><input type="checkbox" value="Health"> Health & wellness</label>
-                <label><input type="checkbox" value="Environment"> Environment & climate</label>
-                <label><input type="checkbox" value="Entertainment"> Film, music & entertainment</label>
+    <script>
 
-                <label style="margin-top: 16px;">
-                    Anything that wasn't mentioned above?
-                </label>
-                <input 
-                    type="text" 
-                    id="niche-interests"
-                    placeholder="e.g. Jensen Huang, NVIDIA, Formula 1, Taylor Swift...">
-                <p style="margin-top: -8px;">
-                    People, companies, topics — anything you want us to track.
-                </p>
+        // ── goToScreen(num) ───────────────────────────────────────────
+        // Hides all screens and shows the one you want.
+        // Also updates which dot is active.
+        // If going to screen 3, it draws the map and fills the summary.
+        function goToScreen(num) {
 
-                <button type="button" onclick="backScreen(3)">Back</button>
-                <button type="button" onclick="nextScreen(3)">Continue</button>
-                
-            </form>
-        </div>
-        -->
-        <!-- JavaScript goes here, at the bottom, before </body> -->
-        <script>
-            function nextScreen(current) {
-                // hide current screen
-                document.getElementById('screen-' + current).classList.remove('active');
-                // show next screen
-                document.getElementById('screen-' + (current + 1)).classList.add('active');
+            if (num === 3) {
+                populateSummary();
+                setTimeout(drawInterestMap, 50);
             }
-            function backScreen(current) {
-                // hide current screen
-                document.getElementById('screen-' + current).classList.remove('active');
-                // show previous screen
-                document.getElementById('screen-' + (current - 1)).classList.add('active');
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // Remove active from all dots
+            document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+
+            // Show the right screen and dot
+            document.getElementById('screen-' + num).classList.add('active');
+            document.getElementById('dot-' + num).classList.add('active');
+        }
+
+        // ── populateSummary() ─────────────────────────────────────────
+        // Reads what the user typed and puts it into the summary blocks
+        // on screen 3 so they can see what they entered before submitting.
+        function populateSummary() {
+            document.getElementById('summary-interests').textContent =
+                document.getElementById('interests').value || '—';
+            document.getElementById('summary-goals').textContent =
+                document.getElementById('learning-goals').value || '—';
+        }
+
+        // ── drawInterestMap() ─────────────────────────────────────────
+        // Reads the interests the user typed, splits them by comma,
+        // and draws a node graph on the canvas — one bubble per interest,
+        // all connected to a center node with the user's first name.
+        // This is the Obsidian-style visualization.
+        function drawInterestMap() {
+            const canvas = document.getElementById('interest-map');
+            const ctx = canvas.getContext('2d');
+
+            // Match canvas pixel resolution to screen pixel ratio
+            // (prevents blurry canvas on retina/high-DPI screens)
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = canvas.offsetWidth * dpr;
+            canvas.height = canvas.offsetHeight * dpr;
+            ctx.scale(dpr, dpr);
+
+            const W = canvas.offsetWidth;
+            const H = canvas.offsetHeight;
+
+            // Clear any previous drawing
+            ctx.clearRect(0, 0, W, H);
+
+            // Parse interests — split by comma, trim whitespace, drop empty strings
+            const raw = document.getElementById('interests').value;
+            // Split on commas, +, and sentence breaks — then take short meaningful chunks                                                                            
+            const items = raw                                                                                                                                         
+                .split(/[,+\n]/)
+                .map(s => s.trim())                                                                                                                                   
+                .filter(s => s.length > 2 && s.length < 40)                                                                                                           
+                .slice(0, 10); // max 10 nodes so it doesn't get crowded
+
+            // If nothing was typed, don't draw anything
+            if (items.length === 0) return;
+
+            // Center point of the canvas
+            const cx = W / 2;
+            const cy = H / 2;
+
+            // How far each interest node sits from the center
+            const orbitRadius = Math.min(W, H) * 0.33;
+
+            // Spread nodes evenly around a circle
+            // angleStep = full circle (2π) divided by number of nodes
+            const angleStep = (2 * Math.PI) / items.length;
+
+            // ── Step 1: Draw the connecting lines first
+            //    (drawn first so nodes sit on top of lines, not under them)
+            items.forEach((item, i) => {
+                const angle = i * angleStep - Math.PI / 2; // start from top
+                const nx = cx + orbitRadius * Math.cos(angle);
+                const ny = cy + orbitRadius * Math.sin(angle);
+
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(nx, ny);
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            });
+
+            // ── Step 2: Draw each interest node
+            items.forEach((item, i) => {
+                const angle = i * angleStep - Math.PI / 2;
+                const nx = cx + orbitRadius * Math.cos(angle);
+                const ny = cy + orbitRadius * Math.sin(angle);
+                const r = 24; // radius of each node circle
+
+                // Black circle
+                ctx.beginPath();
+                ctx.arc(nx, ny, r, 0, 2 * Math.PI);
+                ctx.fillStyle = '#111';
+                ctx.fill();
+
+                // White label inside — truncate if too long
+                const label = item.length > 9 ? item.slice(0, 8) + '…' : item;
+                ctx.fillStyle = '#fff';
+                ctx.font = `500 9.5px -apple-system, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(label, nx, ny);
+            });
+
+            // ── Step 3: Draw the center node (user's first name)
+            const centerRadius = 30;
+            ctx.beginPath();
+            ctx.arc(cx, cy, centerRadius, 0, 2 * Math.PI);
+            ctx.fillStyle = '#111';
+            ctx.fill();
+
+            const firstName = document.getElementById('name').value.split(' ')[0] || 'you';
+            ctx.fillStyle = '#fff';
+            ctx.font = `500 11px -apple-system, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(firstName, cx, cy);
+        }
+
+        // ── submitOnboarding() ────────────────────────────────────────
+        // Collects all data from the form and sends it to the FastAPI
+        // backend as a JSON POST request.
+        // On success → redirect to the briefing page.
+        // On failure → show the error message from the backend.
+        async function submitOnboarding() {
+            const payload = {
+                name:           document.getElementById('name').value,
+                email:          document.getElementById('email').value,
+                password:       document.getElementById('password').value,
+                interests:      document.getElementById('interests').value,
+                learning_goals: document.getElementById('learning-goals').value,
+            };
+
+            const res = await fetch('http://localhost:8000/onboarding', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                window.location.href = '../briefing/index.html';
+            } else {
+                alert('Error: ' + data.detail);
             }
-            function toggleDropdown(id, checkbox) {
-                const dropdown = document.getElementById(id);
-                dropdown.style.display = checkbox.checked ? 'block' : 'none';
-            }
-            async function submitOnboarding(){
-                const payload = {
-                    name: document.querySelector('#screen-1 input[type="text"]').value,
-                    email: document.querySelector('#screen-1 input[type="email"]').value,
-                    password: document.querySelector('#screen-1 input[type="password"]').value,
-                    //second page article interest info
-                    sources: [...document.querySelectorAll('#screen-2 input[type="checkbox"]:checked')]
-                    .map(el => el.value),
-                    //third page interest info
-                    interests: Object.fromEntries(
-                        [...document.querySelectorAll('#screen-3 > form > label > input[type="checkbox"]:checked')]
-                        .map(el => [
-                            el.value,
-                            [...document.querySelectorAll(`#dd-${el.value.toLowerCase()} input[type="checkbox"]:checked`)]
-                            .map(sub => sub.value)
-                        ])
-                    ),
-                    /*
-                    interests: [...document.querySelectorAll('#screen-3 input[type="checkbox"]:checked')]
-                    .map(el => el.value),
-                    */
-                    niche_entities: document.getElementById('niche-interests').value,
+        }
 
-                    //haven't created the front end for these yet, but for now they are hardcoded
-                    reading_time: "5",
-                    format: "bullets",
-                    delivery_time: "08:00",
-                    read_reason: "stay informed"
+    </script>
 
-
-
-                };
-
-                const res = await fetch("http://localhost:8000/onboarding", {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await res.json();
-
-                if(res.ok){
-                    window.location.href = "../briefing/index.html";  
-                }else{
-                    alert("Error: " + data.detail);
-                }
-
-            }
-        </script>
-
-
-
-    </body>
+</body>
 </html>
