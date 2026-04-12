@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<!-- Screen 1: Create account -->
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Welcome to yournews</title>
+        <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        form {
+            background: rgb(255, 255, 255);
+            padding: 40px;
+            border-radius: 12px;
+            width: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        h2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-top: 8px;
+        }
+
+        label {
+            font-size: 14px;
+            color: #444;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        button {
+            background: #1a4a7a;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .back-arrow {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+            padding: 8px;
+        }
+
+        .sub-options {
+            display: none;
+            padding-left: 24px;
+            border-left: 3px solid #1a4a7a;
+            margin-bottom: 8px;
+        }
+
+        p {
+            font-size: 14px;
+            color: #888;
+            margin-top: -8px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+        </style>
+    </head>
+    <body>
+
+        <!-- Screen 1: Create account -->
+        <div id="screen-1" class="screen active">
+            <form>
+                <h1>Create your account</h1>
+                <p>Your personalised briefing starts here.</p>
+
+                <label>Full name</label>
+                <input type="text" placeholder="Your name">
+
+                <label>Email</label>
+                <input type="email" placeholder="you@email.com">
+
+                <label>Password</label>
+                <input type="password" placeholder="At least 8 characters">
+
+                <button type="button" onclick="nextScreen(1)">Continue</button>
+            </form>
+        </div>
+
+        <!-- Screen 2: News sources -->
+        <div id="screen-2" class="screen">
+            <form>
+                <h1>Where do you get your news?</h1>
+                <p>Pick all that apply.</p>
+
+                <h2>Newspapers & magazines</h2>
+                <label><input type="checkbox" value="NYT"> New York Times</label>
+                <label><input type="checkbox" value="WaPo"> Washington Post</label>
+                <label><input type="checkbox" value="Guardian"> The Guardian</label>
+                <label><input type="checkbox" value="FT"> Financial Times</label>
+                <label><input type="checkbox" value="Economist"> The Economist</label>
+                <label><input type="checkbox" value="WSJ"> Wall Street Journal</label>
+                <label><input type="checkbox" value="Bloomberg"> Bloomberg</label>
+                <label><input type="checkbox" value="Reuters"> Reuters</label>
+
+                <h2>Tech & science</h2>
+                <label><input type="checkbox" value="TechCrunch"> TechCrunch</label>
+                <label><input type="checkbox" value="Ars"> Ars Technica</label>
+                <label><input type="checkbox" value="Verge"> The Verge</label>
+                <label><input type="checkbox" value="Wired"> Wired</label>
+                <label><input type="checkbox" value="MIT"> MIT Technology Review</label>
+                <label><input type="checkbox" value="Nature"> Nature</label>
+
+                <h2>Newsletters & podcasts</h2>
+                <label><input type="checkbox" value="MorningBrew"> Morning Brew</label>
+                <label><input type="checkbox" value="Hustle"> The Hustle</label>
+                <label><input type="checkbox" value="Axios"> Axios</label>
+                <label><input type="checkbox" value="Substack"> Substack</label>
+
+                <h2>Social & discovery</h2>
+                <label><input type="checkbox" value="Reddit"> Reddit</label>
+                <label><input type="checkbox" value="Twitter"> Twitter/X</label>
+                <label><input type="checkbox" value="HN"> Hacker News</label>
+                <label><input type="checkbox" value="TikTok"> TikTok</label>
+
+                <h2>Honestly none</h2>
+                <label><input type="checkbox" value="None"> I don't really follow news yet</label>
+
+                <button type="button" onclick="backScreen(2)">Back</button>
+                <button type="button" onclick="nextScreen(2)">Continue</button>
+            </form>
+        
+        </div>
+      
+
+        <!-- Screen 3: Your interests -->
+        <div id="screen-3" class="screen">
+            <form>
+                <h1>What are you interested in?</h1>
+                <p>Pick at least 3 topics.</p>
+
+                <label><input type="checkbox" value="AI" onchange="toggleDropdown('dd-ai', this)"> Technology & AI</label>
+                <div id="dd-ai" class="sub-options">
+                    <label><input type="checkbox" value="llms"> LLMs</label>
+                    <label><input type="checkbox" value="hardware"> Hardware & chips</label>
+                    <label><input type="checkbox" value="ai-startups"> AI startups</label>
+                    <label><input type="checkbox" value="ai-policy"> AI policy</label>
+                    <label><input type="checkbox" value="cybersecurity"> Cybersecurity</label>
+                    <input type="text" placeholder="Add your own...">
+                </div>
+
+                <label><input type="checkbox" value="Business" onchange="toggleDropdown('dd-business', this)"> Business & startups</label>
+                <div id="dd-business" class="sub-options">
+                    <label><input type="checkbox" value="vc"> Venture capital</label>
+                    <label><input type="checkbox" value="founders"> Founders & CEOs</label>
+                    <label><input type="checkbox" value="ipos"> IPOs & M&A</label>
+                    <label><input type="checkbox" value="smallbiz"> Small business</label>
+                    <input type="text" placeholder="Add your own...">
+                </div>
+
+                <label><input type="checkbox" value="Politics" onchange="toggleDropdown('dd-politics', this)"> Politics & world news</label>
+                <div id="dd-politics" class="sub-options">
+                    <label><input type="checkbox" value="us"> US politics</label>
+                    <label><input type="checkbox" value="uk"> UK politics</label>
+                    <label><input type="checkbox" value="europe"> Europe</label>
+                    <label><input type="checkbox" value="middleeast"> Middle East</label>
+                    <label><input type="checkbox" value="asia"> Asia</label>
+                    <input type="text" placeholder="Add your own...">
+                </div>
+
+                <label><input type="checkbox" value="Science" onchange="toggleDropdown('dd-science', this)"> Science & research</label>
+                <div id="dd-science" class="sub-options">
+                    <label><input type="checkbox" value="space"> Space</label>
+                    <label><input type="checkbox" value="climate-sci"> Climate science</label>
+                    <label><input type="checkbox" value="biology"> Biology</label>
+                    <label><input type="checkbox" value="physics"> Physics</label>
+                    <label><input type="checkbox" value="medicine"> Medicine</label>
+                    <input type="text" placeholder="Add your own...">
+                </div>
+
+                <label><input type="checkbox" value="Culture" onchange="toggleDropdown('dd-culture', this)"> Culture & arts</label>
+                <div id="dd-culture" class="sub-options">
+                    <label><input type="checkbox" value="film"> Film</label>
+                    <label><input type="checkbox" value="music"> Music</label>
+                    <label><input type="checkbox" value="architecture"> Architecture</label>
+                    <label><input type="checkbox" value="literature"> Literature</label>
+                    <label><input type="checkbox" value="fashion"> Fashion</label>
+                    <input type="text" placeholder="Add your own...">
+                </div>
+
+                <label><input type="checkbox" value="Sports" onchange="toggleDropdown('dd-sports', this)"> Sports</label>
+                <div id="dd-sports" class="sub-options">
+                    <label><input type="checkbox" value="soccer"> Football/Soccer</label>
+                    <label><input type="checkbox" value="basketball"> Basketball</label>
+                    <label><input type="checkbox" value="tennis"> Tennis</label>
+                    <label><input type="checkbox" value="f1"> Formula 1</label>
+                    <label><input type="checkbox" value="olympics"> Olympics</label>
+                    <input type="text" placeholder="Add your own...">
+                    <!-- its not getting saved to supabase (add your own)-->
+
+                </div>
+
+                <label><input type="checkbox" value="Finance" onchange="toggleDropdown('dd-finance', this)"> Finance & markets</label>
+                <div id="dd-finance" class="sub-options">
+                    <label><input type="checkbox" value="stocks"> Stocks</label>
+                    <label><input type="checkbox" value="crypto"> Crypto</label>
+                    <label><input type="checkbox" value="realestate"> Real estate</label>
+                    <label><input type="checkbox" value="personalfin"> Personal finance</label>
+                    <label><input type="checkbox" value="economics"> Economics</label>
+                    <input type="text" placeholder="Add your own...">
+                </div>
+
+                <label><input type="checkbox" value="Health" onchange="toggleDropdown('dd-health', this)"> Health & wellness</label>
+                <div id="dd-health" class="sub-options">
+                    <label><input type="checkbox" value="mentalhealth"> Mental health</label>
+                    <label><input type="checkbox" value="nutrition"> Nutrition</label>
+                    <label><input type="checkbox" value="fitness"> Fitness</label>
+                    <label><input type="checkbox" value="medresearch"> Medical research</label>
+                    <input type="text" placeholder="Add your own...">
+                </div>
+
+                <label><input type="checkbox" value="Environment" onchange="toggleDropdown('dd-environment', this)"> Environment & climate</label>
+                <div id="dd-environment" class="sub-options">
+                    <label><input type="checkbox" value="climatepolicy"> Climate policy</label>
+                    <label><input type="checkbox" value="renewables"> Renewable energy</label>
+                    <label><input type="checkbox" value="wildlife"> Wildlife</label>
+                    <label><input type="checkbox" value="sustainability"> Sustainability</label>
+                    <input type="text" placeholder="Add your own...">
+                </div>
+
+                <label><input type="checkbox" value="Entertainment" onchange="toggleDropdown('dd-entertainment', this)"> Film, music & entertainment</label>
+                <div id="dd-entertainment" class="sub-options">
+                    <label><input type="checkbox" value="movies"> Movies</label>
+                    <label><input type="checkbox" value="tvshows"> TV shows</label>
+                    <label><input type="checkbox" value="ent-music"> Music</label>
+                    <label><input type="checkbox" value="gaming"> Gaming</label>
+                    <label><input type="checkbox" value="celebrity"> Celebrity news</label>
+                    <input type="text" placeholder="Add your own...">
+                </div>
+
+                <label style="margin-top: 16px;">Anything specific you follow?</label>
+                <input type="text" id="niche-interests" placeholder="e.g. Jensen Huang, NVIDIA, Formula 1, Taylor Swift...">
+                <p style="margin-top: -8px;">People, companies, topics — anything you want us to track.</p>
+
+                <button type="button" class="back-arrow" onclick="backScreen(3)">←</button>
+                <button type="button" onclick="submitOnboarding()">Continue</button>
+
+            </form>
+        </div>
+
+        <!--
+                 Screen 3: Your interests
+        <div id="screen-3" class="screen">
+            <form>
+                <h1>What are you interested in?</h1>
+                <p>Pick at least 3 topics.</p>
+
+                <label><input type="checkbox" value="AI"> Technology & AI</label>
+                <label><input type="checkbox" value="Business"> Business & startups</label>
+                <label><input type="checkbox" value="Politics"> Politics & world news</label>
+                <label><input type="checkbox" value="Science"> Science & research</label>
+                <label><input type="checkbox" value="Culture"> Culture & arts</label>
+                <label><input type="checkbox" value="Sports"> Sports</label>
+                <label><input type="checkbox" value="Finance"> Finance & markets</label>
+                <label><input type="checkbox" value="Health"> Health & wellness</label>
+                <label><input type="checkbox" value="Environment"> Environment & climate</label>
+                <label><input type="checkbox" value="Entertainment"> Film, music & entertainment</label>
+
+                <label style="margin-top: 16px;">
+                    Anything that wasn't mentioned above?
+                </label>
+                <input 
+                    type="text" 
+                    id="niche-interests"
+                    placeholder="e.g. Jensen Huang, NVIDIA, Formula 1, Taylor Swift...">
+                <p style="margin-top: -8px;">
+                    People, companies, topics — anything you want us to track.
+                </p>
+
+                <button type="button" onclick="backScreen(3)">Back</button>
+                <button type="button" onclick="nextScreen(3)">Continue</button>
+                
+            </form>
+        </div>
+        -->
+        <!-- JavaScript goes here, at the bottom, before </body> -->
+        <script>
+            function nextScreen(current) {
+                // hide current screen
+                document.getElementById('screen-' + current).classList.remove('active');
+                // show next screen
+                document.getElementById('screen-' + (current + 1)).classList.add('active');
+            }
+            function backScreen(current) {
+                // hide current screen
+                document.getElementById('screen-' + current).classList.remove('active');
+                // show previous screen
+                document.getElementById('screen-' + (current - 1)).classList.add('active');
+            }
+            function toggleDropdown(id, checkbox) {
+                const dropdown = document.getElementById(id);
+                dropdown.style.display = checkbox.checked ? 'block' : 'none';
+            }
+            async function submitOnboarding(){
+                const payload = {
+                    name: document.querySelector('#screen-1 input[type="text"]').value,
+                    email: document.querySelector('#screen-1 input[type="email"]').value,
+                    password: document.querySelector('#screen-1 input[type="password"]').value,
+                    //second page article interest info
+                    sources: [...document.querySelectorAll('#screen-2 input[type="checkbox"]:checked')]
+                    .map(el => el.value),
+                    //third page interest info
+                    interests: Object.fromEntries(
+                        [...document.querySelectorAll('#screen-3 > form > label > input[type="checkbox"]:checked')]
+                        .map(el => [
+                            el.value,
+                            [...document.querySelectorAll(`#dd-${el.value.toLowerCase()} input[type="checkbox"]:checked`)]
+                            .map(sub => sub.value)
+                        ])
+                    ),
+                    /*
+                    interests: [...document.querySelectorAll('#screen-3 input[type="checkbox"]:checked')]
+                    .map(el => el.value),
+                    */
+                    niche_entities: document.getElementById('niche-interests').value,
+
+                    //haven't created the front end for these yet, but for now they are hardcoded
+                    reading_time: "5",
+                    format: "bullets",
+                    delivery_time: "08:00",
+                    read_reason: "stay informed"
+
+
+
+                };
+
+                const res = await fetch("http://localhost:8000/onboarding", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if(res.ok){
+                    window.location.href = "../briefing/index.html";  
+                }else{
+                    alert("Error: " + data.detail);
+                }
+
+            }
+        </script>
+
+
+
+    </body>
+</html>
