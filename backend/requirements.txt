@@ -1,6 +1,9 @@
-fastapi 
-uvicorn 
-supabase 
-python-dotenv 
-bcrypt 
-pydantic 
+fastapi
+uvicorn
+supabase
+python-dotenv
+bcrypt
+pydantic
+feedparser
+requests
+sentence-transformers
