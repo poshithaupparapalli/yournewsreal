@@ -14,7 +14,7 @@ import requests
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from database.connection import supabase
 
 load_dotenv()
@@ -149,16 +149,23 @@ def save_articles(articles: list[dict]) -> tuple[int, int]:
         guardian_id = article.get("id", "")
         fields = article.get("fields", {})
 
+        body_text = fields.get("bodyText", "")
+
+        # First 1500 chars — used for embedding so we don't send full articles to OpenAI
+        # Roughly the first 2 paragraphs, which captures the who/what/why of the article
+        body_preview = body_text[:1500] if body_text else ""
+
         row = {
-            "guardian_id":  guardian_id,
-            "title":        article.get("webTitle", ""),
-            "url":          article.get("webUrl", ""),
-            "published_at": article.get("webPublicationDate", ""),
-            "section":      article.get("sectionName", ""),
-            "author":       fields.get("byline", ""),
-            "summary":      fields.get("trailText", ""),
-            "body_text":    fields.get("bodyText", ""),
-            "source":       "guardian",
+            "guardian_id":   guardian_id,
+            "title":         article.get("webTitle", ""),
+            "url":           article.get("webUrl", ""),
+            "published_at":  article.get("webPublicationDate", ""),
+            "section":       article.get("sectionName", ""),
+            "author":        fields.get("byline", ""),
+            "summary":       fields.get("trailText", ""),
+            "body_text":     body_text,
+            "body_preview":  body_preview,   # first 1500 chars for embedding
+            "source":        "guardian",
         }
 
         try:
