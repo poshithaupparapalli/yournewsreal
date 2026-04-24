@@ -59,7 +59,7 @@ from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
 # Add the parent directory to path so we can import from database/
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from database.connection import supabase
 
 load_dotenv()
