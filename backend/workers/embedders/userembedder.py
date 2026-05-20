@@ -25,7 +25,7 @@ def get_unembedded_users() -> list[dict]:
     right after user has signed up, will call this function to retrieve the newly inputed user responses for our onboarding form
     """
     result = (
-        supabase.table("users")
+        supabase.table("users_waitlist")
         .select("id, interests_raw, learning_goals_raw")
         .is_("interests_raw_vector", "null")
         .not_.is_("interests_raw", "null")
@@ -47,7 +47,7 @@ def embed_text(text: str) -> list[float]:
 
 def save_user_embeddings(user_id: str, user_interests: list[float], user_learning_goals: list[float]):
     #Saves the embedding vector back to the articles table.
-    supabase.table("users").update(
+    supabase.table("users_waitlist").update(
         {"interests_raw_vector": user_interests,
         "learning_goals_raw_vector": user_learning_goals
     }).eq("id", user_id).execute()

@@ -26,7 +26,7 @@ load_dotenv()
 
 # ─────────────────────────────────────────────────────────────
 # CONFIG
-MIN_SCORE       = 0.23   # minimum cosine similarity to include an article
+MIN_SCORE       = 0.15   # minimum cosine similarity to include an article
 MAX_PER_CLUSTER = 2      # max articles per cluster across the whole briefing
 INTEREST_SLOTS  = 5      # articles from interest_vector
 LEARNING_SLOTS  = 1      # articles from learning_vector
@@ -154,21 +154,35 @@ def build_briefing(
         articles, article_embeddings, interest_vector, INTEREST_SLOTS
     )
 
-    # Run learning selection — pass cluster counts so it avoids same clusters
-    learning_picks, _ = select_articles(
-        articles, article_embeddings, learning_vector, LEARNING_SLOTS,
-        existing_cluster_counts=cluster_counts
+    # CHANGE 1: do NOT pass cluster_counts from interest picks into learning.
+    # The old code shared cluster_counts, which meant every cluster the interest
+    # round used was already at MAX_PER_CLUSTER=2 — so learning could never pick
+    # anything. Learning now starts with its own fresh cluster counts.
+    #
+    # CHANGE 2: request LEARNING_SLOTS + INTEREST_SLOTS candidates (6 total)
+    # instead of just LEARNING_SLOTS (1). If we only asked for 1 and that 1
+    # article was already in interest_picks, deduplication below would discard
+    # it and leave 0 learning articles. The extra buffer means even if all 5
+    # interest articles appear in the top learning results, there's still a
+    # unique 6th one available.
+    learning_candidates, _ = select_articles(
+        articles, article_embeddings, learning_vector,
+        LEARNING_SLOTS + INTEREST_SLOTS,
     )
 
-    # Deduplicate learning picks against interest picks
     interest_ids = [a["id"] for a in interest_picks]
     seen = set(interest_ids)
 
     learning_ids = []
-    for a in learning_picks:
+    for a in learning_candidates:
         if a["id"] not in seen:
             learning_ids.append(a["id"])
             seen.add(a["id"])
+            # CHANGE 3: stop as soon as we have enough learning articles.
+            # Without this break we'd loop over all 6 candidates and
+            # collect more than LEARNING_SLOTS articles.
+            if len(learning_ids) >= LEARNING_SLOTS:
+                break
 
     return interest_ids, learning_ids
 
