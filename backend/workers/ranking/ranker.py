@@ -26,7 +26,7 @@ load_dotenv()
 
 # ─────────────────────────────────────────────────────────────
 # CONFIG
-MIN_SCORE       = 0.4   # minimum cosine similarity to include an article
+MIN_SCORE       = 0.23   # minimum cosine similarity to include an article
 MAX_PER_CLUSTER = 2      # max articles per cluster across the whole briefing
 INTEREST_SLOTS  = 5      # articles from interest_vector
 LEARNING_SLOTS  = 1      # articles from learning_vector
@@ -39,7 +39,7 @@ def fetch_users() -> list[dict]:
     Fetches all users who have both vectors embedded.
     """
     result = (
-        supabase.table("users")
+        supabase.table("users_waitlist")
         .select("id, interests_raw_vector, learning_goals_raw_vector")
         .not_.is_("interests_raw_vector", "null")
         .not_.is_("learning_goals_raw_vector", "null")
@@ -110,6 +110,9 @@ def select_articles(
 
     # Sort descending by score
     scored.sort(key=lambda x: x[0], reverse=True)
+
+    # DEBUG — print top 5 scores to see what range we're working with
+    print(f"    Top 5 scores: {[round(s, 4) for s, _ in scored[:5]]}")
 
     selected = []
 
