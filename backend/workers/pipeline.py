@@ -2,12 +2,13 @@
 pipeline.py
 
 Orchestrates the full daily pipeline in order:
-  1. scraper.py         — fetch Guardian articles
-  2. jina_fetcher.py    — fetch full text for RSS links
-  3. article_embedder.py — embed all new articles
-  4. clusterer.py       — assign cluster IDs
-  5. ranker.py          — build briefings for all users
-  6. emailer.py         — send briefing emails
+  1. scrapers/scraper.py      — fetch Guardian articles
+  2. scrapers/jina.py         — fetch full text for RSS links
+  3. embedders/articleembedder.py — embed all new articles
+  4. ranking/clusterer.py     — assign cluster IDs
+  5. ranking/ranker.py        — build briefings for all users
+  6. ranking/summarizer.py    — generate LLM summaries for briefing articles
+  7. emailer.py               — send briefing emails
 
 Run from backend/:
   python workers/pipeline.py
@@ -41,19 +42,20 @@ def run():
     print(f"DAILY PIPELINE — {start.strftime('%Y-%m-%d %H:%M UTC')}")
     print("=" * 55)
 
-    # Import each worker module
-    from workers import scraper
-    from workers import jina_fetcher
-    from workers.embedders import article_embedder
-    from workers import clusterer
-    from workers import ranker
+    from workers.scrapers import scraper
+    from workers.scrapers import jina
+    from workers.embedders import articleembedder
+    from workers.ranking import clusterer
+    from workers.ranking import ranker
+    from workers.ranking import summarizer
     from workers import emailer
 
     run_step("Guardian Scraper",   scraper)
-    run_step("Jina Fetcher",       jina_fetcher)
-    run_step("Article Embedder",   article_embedder)
+    run_step("Jina Fetcher",       jina)
+    run_step("Article Embedder",   articleembedder)
     run_step("Clusterer",          clusterer)
     run_step("Ranker",             ranker)
+    run_step("Summarizer",         summarizer)
     run_step("Emailer",            emailer)
 
     elapsed = (datetime.now(timezone.utc) - start).seconds

@@ -50,7 +50,7 @@ def get_todays_briefings() -> list[dict]:
     today = datetime.now(timezone.utc).date().isoformat()
     result = (
         supabase.table("briefings")
-        .select("article_ids")
+        .select("interest_article_ids, learning_article_ids, world_article_ids")
         .eq("date", today)
         .execute()
     )
@@ -66,7 +66,12 @@ def get_unique_article_ids(briefings: list[dict]) -> list[str]:
     seen = set()
     unique_ids = []
     for briefing in briefings:
-        for article_id in briefing.get("article_ids", []):
+        all_ids = (
+            (briefing.get("interest_article_ids") or []) +
+            (briefing.get("learning_article_ids") or []) +
+            (briefing.get("world_article_ids") or [])
+        )
+        for article_id in all_ids:
             if article_id not in seen:
                 seen.add(article_id)
                 unique_ids.append(article_id)
