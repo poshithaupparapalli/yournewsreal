@@ -10,14 +10,10 @@ from database.connection import supabase
 
 load_dotenv()
 
-# ─────────────────────────────────────────────────────────────
-# OUTLET CONFIG — only thing that changes between outlet files
-# ─────────────────────────────────────────────────────────────
 OUTLET_NAME = "axios"
 RSS_URL     = "https://api.axios.com/feed/"
 
 # How far back to look for articles (should match how often this scraper runs)
-# e.g. if running every 2 hours, look back 2.5 hours to avoid gaps
 LOOKBACK_HOURS = 2.5
 
 # Browser-like headers so RSS servers don't block us
