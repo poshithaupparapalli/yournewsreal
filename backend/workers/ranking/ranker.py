@@ -28,8 +28,8 @@ load_dotenv()
 # CONFIG
 MIN_SCORE       = 0.15   # minimum cosine similarity to include an article
 MAX_PER_CLUSTER = 2      # max articles per cluster across the whole briefing
-INTEREST_SLOTS  = 5      # articles from interest_vector
-LEARNING_SLOTS  = 1      # articles from learning_vector
+INTEREST_SLOTS  = 2      # articles from interest_vector
+LEARNING_SLOTS  = 2      # articles from learning_vector
 # world slots handled separately by world importance module
 # ─────────────────────────────────────────────────────────────
 
@@ -220,7 +220,7 @@ def run():
         print("No articles with embeddings and cluster IDs found. Exiting.")
         return
 
-    print(f"\nSlots per user: {INTEREST_SLOTS} interest + {LEARNING_SLOTS} learning + 3 world\n")
+    print(f"\nSlots per user: {INTEREST_SLOTS} interest + {LEARNING_SLOTS} learning + 1 world\n")
 
     # Parse all article embeddings once — reused for every user
     article_embeddings = np.array([

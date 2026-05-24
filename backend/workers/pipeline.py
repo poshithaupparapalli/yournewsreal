@@ -47,6 +47,7 @@ def run():
     from workers.embedders import articleembedder
     from workers.ranking import clusterer
     from workers.ranking import ranker
+    from workers.world import world_ranker
     from workers.ranking import summarizer
     from workers import emailer
 
@@ -55,6 +56,7 @@ def run():
     run_step("Article Embedder",   articleembedder)
     run_step("Clusterer",          clusterer)
     run_step("Ranker",             ranker)
+    run_step("World Ranker",       world_ranker)
     run_step("Summarizer",         summarizer)
     run_step("Emailer",            emailer)
 
