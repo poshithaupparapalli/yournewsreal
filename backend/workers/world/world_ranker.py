@@ -13,6 +13,7 @@ Run from backend/:
 """
 
 import requests, zipfile, io, csv, os, sys
+import numpy as np
 from datetime import datetime, timezone, timedelta
 from collections import defaultdict
 from dotenv import load_dotenv
@@ -27,10 +28,12 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 JINA_API_KEY = os.getenv("JINA_API_KEY", "")
 JINA_HEADERS = {"Authorization": f"Bearer {JINA_API_KEY}"} if JINA_API_KEY else {}
 
-GDELT_HOURS    = 8
-GDELT_FETCH_N  = 15   # candidates to pull from GDELT
-MIN_GPT_SCORE  = 6.0  # minimum significance score to include as world article
-WORLD_SLOTS    = 1    # how many world articles per briefing
+GDELT_HOURS        = 8
+GDELT_FETCH_N      = 15    # candidates to pull from GDELT
+MIN_GPT_SCORE      = 6.0   # minimum significance score to include as world article
+WORLD_SLOTS        = 1     # how many world articles per briefing
+EMBEDDING_MODEL    = "text-embedding-3-small"
+SIMILARITY_CUTOFF  = 0.82  # if world article is this similar to an existing article, skip for that user
 
 SIGNIFICANCE_PROMPT = """You are a world news editor scoring articles for global significance.
 
@@ -167,42 +170,105 @@ def score_significance(title: str, body: str) -> tuple[float | None, str, str]:
         return None, str(e), ""
 
 
+# ── Embedding + similarity ────────────────────────────────────────────────────
+
+def embed_text(text: str) -> np.ndarray | None:
+    try:
+        resp = client.embeddings.create(model=EMBEDDING_MODEL, input=text[:8000])
+        return np.array(resp.data[0].embedding, dtype=np.float32)
+    except Exception as e:
+        print(f"  ✗ Embedding failed: {e}")
+        return None
+
+
+def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
+    denom = np.linalg.norm(a) * np.linalg.norm(b)
+    return float(np.dot(a, b) / denom) if denom else 0.0
+
+
 # ── Supabase ──────────────────────────────────────────────────────────────────
 
-def insert_world_article(title: str, url: str, body_text: str, category: str) -> str | None:
+def insert_world_article(title: str, url: str, body_text: str, category: str, embedding: np.ndarray | None) -> str | None:
     """
     Inserts the world article into the articles table (upsert on URL as guardian_id).
+    Saves embedding so similarity checks work immediately.
     Returns the article's UUID.
     """
-    today = datetime.now(timezone.utc).date().isoformat()
+    payload = {
+        "title":        title,
+        "url":          url,
+        "source":       f"gdelt_world_{category}",
+        "body_text":    body_text,
+        "published_at": datetime.now(timezone.utc).isoformat(),
+        "guardian_id":  url,
+    }
+    if embedding is not None:
+        payload["embedding"] = embedding.tolist()
+
     result = (
         supabase.table("articles")
-        .upsert({
-            "title":        title,
-            "url":          url,
-            "source":       f"gdelt_world_{category}",
-            "body_text":    body_text,
-            "published_at": datetime.now(timezone.utc).isoformat(),
-            "guardian_id":  url,
-        }, on_conflict="guardian_id")
+        .upsert(payload, on_conflict="guardian_id")
         .execute()
     )
     if result.data:
         return result.data[0]["id"]
 
-    # upsert may not return data on conflict — fetch by guardian_id instead
     fetch = supabase.table("articles").select("id").eq("guardian_id", url).single().execute()
     return fetch.data["id"] if fetch.data else None
 
 
-def update_briefings_world(article_id: str):
+def update_briefings_world_per_user(article_id: str, world_embedding: np.ndarray | None):
     """
-    Sets world_article_ids = [article_id] on all of today's briefings.
+    Updates each user's briefing individually.
+    Skips the world slot if the world article is too similar to anything
+    already in their interest or learning picks (same story, different source).
     """
     today = datetime.now(timezone.utc).date().isoformat()
-    supabase.table("briefings").update(
-        {"world_article_ids": [article_id]}
-    ).eq("date", today).execute()
+    briefings = (
+        supabase.table("briefings")
+        .select("id, user_id, interest_article_ids, learning_article_ids")
+        .eq("date", today)
+        .execute()
+        .data
+    )
+
+    added = 0
+    skipped = 0
+
+    for b in briefings:
+        existing_ids = (b.get("interest_article_ids") or []) + (b.get("learning_article_ids") or [])
+
+        too_similar = False
+
+        if world_embedding is not None and existing_ids:
+            existing = (
+                supabase.table("articles")
+                .select("id, embedding")
+                .in_("id", existing_ids)
+                .not_.is_("embedding", "null")
+                .execute()
+                .data
+            )
+            for art in existing:
+                if not art.get("embedding"):
+                    continue
+                emb = np.array(art["embedding"], dtype=np.float32)
+                sim = cosine_similarity(world_embedding, emb)
+                if sim >= SIMILARITY_CUTOFF:
+                    too_similar = True
+                    print(f"  ⚠ Skipping world for user {b['user_id'][:8]}... (similarity {sim:.2f} with existing article)")
+                    break
+
+        if too_similar:
+            skipped += 1
+            continue
+
+        supabase.table("briefings").update(
+            {"world_article_ids": [article_id]}
+        ).eq("id", b["id"]).execute()
+        added += 1
+
+    print(f"  ✓ World article added to {added} briefings, skipped {skipped} (already covered)")
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -256,15 +322,17 @@ def run():
     print(f"  {top['title']}")
     print(f"  {top['reason']}\n")
 
-    article_id = insert_world_article(top["title"], top["url"], top["body"], top["category"])
+    print(f"  Embedding world article...")
+    world_embedding = embed_text(f"{top['title']} {top['body']}")
+
+    article_id = insert_world_article(top["title"], top["url"], top["body"], top["category"], world_embedding)
     if not article_id:
         print("  ✗ Failed to insert world article into database.")
         return
 
     print(f"  ✓ Inserted article ID: {article_id}")
 
-    update_briefings_world(article_id)
-    print(f"  ✓ Updated all today's briefings with world article")
+    update_briefings_world_per_user(article_id, world_embedding)
 
     print(f"\n{'=' * 55}")
     print("DONE")
