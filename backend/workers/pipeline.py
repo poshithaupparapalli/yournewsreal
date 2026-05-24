@@ -2,7 +2,7 @@
 pipeline.py
 
 Orchestrates the full daily pipeline in order:
-  1. scrapers/scraper.py      — fetch Guardian articles
+  1. scrapers/daily_scraper.py — fetch articles
   2. scrapers/jina.py         — fetch full text for RSS links
   3. embedders/articleembedder.py — embed all new articles
   4. ranking/clusterer.py     — assign cluster IDs
@@ -42,7 +42,7 @@ def run():
     print(f"DAILY PIPELINE — {start.strftime('%Y-%m-%d %H:%M UTC')}")
     print("=" * 55)
 
-    from workers.scrapers import scraper
+    from workers.scrapers import daily_scraper as scraper
     from workers.scrapers import jina
     from workers.embedders import articleembedder
     from workers.ranking import clusterer
