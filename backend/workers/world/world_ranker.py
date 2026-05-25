@@ -16,6 +16,7 @@ import requests, zipfile, io, csv, os, sys
 import numpy as np
 from datetime import datetime, timezone, timedelta
 from collections import defaultdict
+from urllib.parse import urlparse
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -33,6 +34,30 @@ GDELT_FETCH_N      = 15    # candidates to pull from GDELT
 MIN_GPT_SCORE      = 6.0   # minimum significance score to include as world article
 WORLD_SLOTS        = 1     # how many world articles per briefing
 EMBEDDING_MODEL    = "text-embedding-3-small"
+
+# Trusted outlets — all equal. Only stories where GDELT's representative URL
+# comes from one of these domains are considered.
+TRUSTED_DOMAINS = {
+    # Wire services
+    "reuters.com", "apnews.com", "afp.com",
+    # Major US nationals
+    "nytimes.com", "washingtonpost.com", "wsj.com", "bloomberg.com",
+    "politico.com", "theatlantic.com", "npr.org", "axios.com",
+    "cnn.com", "nbcnews.com", "abcnews.go.com", "cbsnews.com",
+    "msnbc.com", "foxnews.com", "usatoday.com", "latimes.com",
+    "chicagotribune.com", "bostonglobe.com", "thehill.com",
+    "vox.com", "slate.com", "salon.com", "newsweek.com",
+    "time.com", "forbes.com", "businessinsider.com",
+    "huffpost.com", "thedailybeast.com", "motherjones.com",
+    "foreignpolicy.com", "foreignaffairs.com", "defenseone.com",
+    # Major international
+    "bbc.com", "bbc.co.uk", "theguardian.com", "economist.com",
+    "ft.com", "aljazeera.com", "france24.com", "dw.com",
+    "spiegel.de", "lemonde.fr",
+    # Tech / niche but credible
+    "techcrunch.com", "theverge.com", "arstechnica.com",
+    "wired.com", "technologyreview.mit.edu",
+}
 SIMILARITY_CUTOFF  = 0.82  # if world article is this similar to an existing article, skip for that user
 
 SIGNIFICANCE_PROMPT = """You are a world news editor scoring articles for global significance.
@@ -71,11 +96,22 @@ def get_gdelt_file_urls(hours: int) -> list[str]:
     return list(dict.fromkeys(urls))
 
 
+def get_domain(url: str) -> str:
+    try:
+        host = urlparse(url).netloc.lower()
+        return host[4:] if host.startswith("www.") else host
+    except:
+        return ""
+
+
 def fetch_top_gdelt_stories(hours: int = GDELT_HOURS, top_n: int = GDELT_FETCH_N) -> list[dict]:
     urls = get_gdelt_file_urls(hours)
     print(f"  Fetching {len(urls)} GDELT files ({hours}h window)...")
 
-    aggregated = defaultdict(lambda: {"num_articles": 0, "goldstein": 0, "url": ""})
+    aggregated = defaultdict(lambda: {"num_articles": 0, "goldstein": 0, "url": "", "domain": ""})
+
+    total_rows = 0
+    trusted_rows = 0
 
     for i, url in enumerate(urls):
         try:
@@ -91,16 +127,22 @@ def fetch_top_gdelt_stories(hours: int = GDELT_HOURS, top_n: int = GDELT_FETCH_N
                     src = row[60]
                     if not src or not src.startswith("http"):
                         continue
+                    total_rows += 1
+                    domain = get_domain(src)
+                    if domain not in TRUSTED_DOMAINS:
+                        continue
+                    trusted_rows += 1
                     aggregated[src]["num_articles"] += int(row[33]) if row[33] else 0
                     aggregated[src]["goldstein"]     = float(row[30]) if row[30] else 0
                     aggregated[src]["url"]           = src
+                    aggregated[src]["domain"]        = domain
                 except:
                     continue
             print(f"  file {i+1}/{len(urls)} done", end="\r")
         except:
             continue
 
-    print(f"\n  Unique stories: {len(aggregated)}")
+    print(f"\n  Total URLs seen: {total_rows} | From trusted outlets: {trusted_rows} | Unique trusted stories: {len(aggregated)}")
     top = sorted(aggregated.values(), key=lambda x: x["num_articles"], reverse=True)
     return top[:top_n]
 
@@ -285,7 +327,7 @@ def run():
     results = []
     for i, story in enumerate(stories, 1):
         url = story["url"]
-        print(f"  [{i}/{len(stories)}] {url[:65]}")
+        print(f"  [{i}/{len(stories)}] [{story.get('domain','?')}] {url[:55]}")
 
         title, body = scrape_jina(url)
         if not title or not body:
