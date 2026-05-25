@@ -4,6 +4,10 @@ from pydantic import BaseModel
 import bcrypt
 import sys
 import os
+from dotenv import load_dotenv
+
+
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from database.connection import supabase
@@ -49,6 +53,17 @@ async def onboarding(data: OnboardingData):
 
     # Embed both onboarding responses immediately after signup
     # This means their first briefing can be ranked right away
+    """
+    try:
+        interest_vector      = embed_text(data.interests)
+        learning_vector      = embed_text(data.learning_goals)
+        save_user_embeddings(user_id, interest_vector, learning_vector)
+    except Exception as e:
+        import traceback
+        print(f"WARNING: embedding failed for user {user_id}")
+        print(traceback.format_exc())
+    """
+    
     try:
         interest_vector      = embed_text(data.interests)
         learning_vector      = embed_text(data.learning_goals)
@@ -59,7 +74,7 @@ async def onboarding(data: OnboardingData):
         print(f"Warning: embedding failed for user {user_id}: {e}")
 
     return {"success": True, "user_id": user_id}
-
+    
 
 @router.post("/login")
 async def login(data: LoginData):
