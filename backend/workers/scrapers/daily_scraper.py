@@ -354,5 +354,7 @@ def main():
     print(f"\nDone.\n")
 
 
+run = main
+
 if __name__ == "__main__":
     main()
