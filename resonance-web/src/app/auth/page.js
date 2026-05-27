@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '${API_URL}'
+
 const inputStyle = {
   width: '100%',
   border: 'none',
@@ -33,6 +35,7 @@ export default function AuthPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [interests, setInterests] = useState('')
   const [learningGoals, setLearningGoals] = useState('')
 
@@ -45,7 +48,7 @@ export default function AuthPage() {
 
     try {
       if (isSignup) {
-        const res = await fetch('http://localhost:8000/onboarding', {
+        const res = await fetch(`${API_URL}/onboarding`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -65,7 +68,7 @@ export default function AuthPage() {
         router.push('/briefing')
 
       } else {
-        const res = await fetch('http://localhost:8000/login', {
+        const res = await fetch(`${API_URL}/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
@@ -203,14 +206,28 @@ export default function AuthPage() {
 
           <div>
             <label style={labelStyle}>password</label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              style={inputStyle}
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                minLength={8}
+                style={{ ...inputStyle, paddingRight: '32px' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(p => !p)}
+                style={{
+                  position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: '#bbb', fontSize: '12px', fontFamily: 'sans-serif', padding: '4px',
+                }}
+              >
+                {showPassword ? 'hide' : 'show'}
+              </button>
+            </div>
           </div>
 
           {isSignup && (
@@ -239,6 +256,14 @@ export default function AuthPage() {
                 />
               </div>
             </>
+          )}
+
+          {!isSignup && (
+            <div style={{ textAlign: 'right', marginTop: '-12px' }}>
+              <a href="/forgot-password" style={{ fontSize: '12px', color: '#bbb', textDecoration: 'none', letterSpacing: '0.04em' }}>
+                forgot password?
+              </a>
+            </div>
           )}
 
           <button

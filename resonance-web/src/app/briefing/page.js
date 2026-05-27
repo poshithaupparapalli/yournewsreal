@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-// Fixed positions — 3 above the wave, 2 below
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+
 const POSITIONS = [
   { left: '5%',  top: '18%' },
   { left: '38%', top: '14%' },
@@ -11,6 +12,14 @@ const POSITIONS = [
   { left: '18%', top: '62%' },
   { left: '55%', top: '62%' },
 ]
+
+const SCORE_LABELS = {
+  1: 'not relevant at all',
+  2: 'mostly off',
+  3: 'pretty good',
+  4: 'very relevant',
+  5: 'exactly right',
+}
 
 function Wave() {
   return (
@@ -49,6 +58,38 @@ function Wave() {
         }
       `}</style>
     </svg>
+  )
+}
+
+function FloatingParticles() {
+  const particles = [
+    { left: '20%', delay: '0s',    duration: '3.2s' },
+    { left: '35%', delay: '0.6s',  duration: '2.8s' },
+    { left: '50%', delay: '1.1s',  duration: '3.5s' },
+    { left: '65%', delay: '0.3s',  duration: '2.6s' },
+    { left: '80%', delay: '0.9s',  duration: '3.1s' },
+    { left: '28%', delay: '1.4s',  duration: '2.9s' },
+    { left: '72%', delay: '0.5s',  duration: '3.4s' },
+  ]
+  return (
+    <div style={{ position: 'relative', height: '100px', overflow: 'hidden', background: '#f5f4f0' }}>
+      {particles.map((p, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            top: '-6px',
+            left: p.left,
+            width: '3px',
+            height: '3px',
+            borderRadius: '50%',
+            background: '#c8c4bc',
+            animation: `floatDown ${p.duration} ease-in-out infinite`,
+            animationDelay: p.delay,
+          }}
+        />
+      ))}
+    </div>
   )
 }
 
@@ -119,28 +160,196 @@ function ArticleCard({ article, onHover, isExpanded }) {
   )
 }
 
+function FeedbackSection({ userId }) {
+  const [score, setScore] = useState(3)
+  const [text, setText] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      await fetch(`${API_URL}/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, score, text }),
+      })
+    } catch (_) {}
+    setSubmitted(true)
+    setLoading(false)
+  }
+
+  if (submitted) {
+    return (
+      <section style={{
+        maxWidth: '520px',
+        margin: '0 auto',
+        padding: '80px 48px',
+        textAlign: 'center',
+      }}>
+        <div style={{ fontSize: '13px', fontFamily: 'sans-serif', color: '#999', letterSpacing: '0.06em' }}>
+          thank you. this genuinely helps us get better.
+        </div>
+      </section>
+    )
+  }
+
+  return (
+    <section style={{
+      maxWidth: '520px',
+      margin: '0 auto',
+      padding: '64px 48px 80px',
+    }}>
+      <div style={{
+        fontSize: '11px',
+        fontFamily: 'sans-serif',
+        color: '#bbb',
+        letterSpacing: '0.1em',
+        textTransform: 'uppercase',
+        marginBottom: '16px',
+      }}>
+        feedback
+      </div>
+      <h2 style={{
+        fontFamily: 'Georgia, serif',
+        fontSize: '26px',
+        fontWeight: '400',
+        color: '#1a1a1a',
+        marginBottom: '10px',
+        letterSpacing: '-0.01em',
+      }}>
+        how was today's briefing?
+      </h2>
+      <p style={{
+        fontSize: '13px',
+        fontFamily: 'sans-serif',
+        color: '#999',
+        lineHeight: '1.6',
+        marginBottom: '40px',
+      }}>
+        we're just getting started. brutal honesty is genuinely appreciated.
+      </p>
+
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
+
+        {/* Relevance slider */}
+        <div>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '14px',
+          }}>
+            <label style={{ fontSize: '12px', fontFamily: 'sans-serif', color: '#666', letterSpacing: '0.04em' }}>
+              how relevant were the articles?
+            </label>
+            <span style={{ fontSize: '12px', fontFamily: 'sans-serif', color: '#aaa', fontStyle: 'italic' }}>
+              {SCORE_LABELS[score]}
+            </span>
+          </div>
+          <input
+            type="range"
+            min="1"
+            max="5"
+            value={score}
+            onChange={e => setScore(Number(e.target.value))}
+            style={{ width: '100%', accentColor: '#1a1a1a', cursor: 'pointer' }}
+          />
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginTop: '6px',
+            fontSize: '10px',
+            fontFamily: 'sans-serif',
+            color: '#ccc',
+            letterSpacing: '0.04em',
+          }}>
+            <span>1</span>
+            <span>2</span>
+            <span>3</span>
+            <span>4</span>
+            <span>5</span>
+          </div>
+        </div>
+
+        {/* Text feedback */}
+        <div>
+          <label style={{
+            display: 'block',
+            fontSize: '12px',
+            fontFamily: 'sans-serif',
+            color: '#666',
+            letterSpacing: '0.04em',
+            marginBottom: '12px',
+          }}>
+            what would make this better?
+          </label>
+          <textarea
+            placeholder="wrong topics, too long, missing something... anything helps."
+            value={text}
+            onChange={e => setText(e.target.value)}
+            rows={4}
+            style={{
+              width: '100%',
+              border: 'none',
+              borderBottom: '1px solid #ddd',
+              background: 'transparent',
+              fontSize: '13px',
+              fontFamily: 'sans-serif',
+              color: '#1a1a1a',
+              lineHeight: '1.7',
+              resize: 'none',
+              outline: 'none',
+              padding: '0 0 8px',
+            }}
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            background: loading ? '#ccc' : '#1a1a1a',
+            color: '#f5f4f0',
+            border: 'none',
+            padding: '13px',
+            fontSize: '12px',
+            fontFamily: 'sans-serif',
+            letterSpacing: '0.06em',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            transition: 'background 0.2s ease',
+          }}
+        >
+          {loading ? 'sending...' : 'submit feedback'}
+        </button>
+      </form>
+    </section>
+  )
+}
+
 export default function BriefingPage() {
   const router = useRouter()
   const [userName, setUserName] = useState('')
+  const [userId, setUserId] = useState('')
   const [hoveredCard, setHoveredCard] = useState(null)
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const name   = localStorage.getItem('user_name')
-    const userId = localStorage.getItem('user_id')
-    if (!userId) { router.push('/auth'); return }
+    const name = localStorage.getItem('user_name')
+    const uid  = localStorage.getItem('user_id')
+    if (!uid) { router.push('/auth'); return }
     setUserName(name || '')
+    setUserId(uid)
 
-    // Fetch today's briefing from FastAPI
-    fetch(`http://localhost:8000/briefing/${userId}`)
+    fetch(`${API_URL}/briefing/${uid}`)
       .then(res => {
         if (!res.ok) throw new Error('no briefing yet')
         return res.json()
       })
       .then(data => {
-        // Combine all articles and attach positions
         const all = [
           ...data.interests,
           ...data.learning,
@@ -167,98 +376,120 @@ export default function BriefingPage() {
   }).toLowerCase()
 
   return (
-    <main style={{
-      backgroundColor: '#f5f4f0',
-      height: '100vh',
-      overflow: 'hidden',
-      position: 'relative',
-      fontFamily: 'Georgia, serif',
-      color: '#1a1a1a',
-    }}>
-
-      <nav style={{
-        position: 'absolute',
-        top: 0, left: 0, right: 0,
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '24px 48px',
-        zIndex: 10,
+    <>
+      {/* ── BRIEFING SECTION ── */}
+      <main style={{
+        backgroundColor: '#f5f4f0',
+        height: '100vh',
+        overflow: 'hidden',
+        position: 'relative',
+        fontFamily: 'Georgia, serif',
+        color: '#1a1a1a',
       }}>
-        <span style={{ fontSize: '14px', letterSpacing: '0.06em' }}>resonance</span>
-        <div style={{ fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em' }}>
-          {today} · {greeting}
-        </div>
-        <button
-          onClick={() => { localStorage.removeItem('user_id'); localStorage.removeItem('user_name'); router.push('/') }}
-          style={{ background: 'none', border: 'none', fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', cursor: 'pointer', letterSpacing: '0.06em' }}
-        >
-          sign out
-        </button>
-      </nav>
 
-      <Wave />
-
-      {loading && (
-        <div style={{
-          position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)',
-          fontSize: '13px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em',
+        <nav style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '24px 48px',
+          zIndex: 10,
         }}>
-          preparing your briefing...
-        </div>
-      )}
+          <span style={{ fontSize: '14px', letterSpacing: '0.06em' }}>resonance</span>
+          <div style={{ fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em' }}>
+            {today} · {greeting}
+          </div>
+          <button
+            onClick={() => { localStorage.removeItem('user_id'); localStorage.removeItem('user_name'); router.push('/') }}
+            style={{ background: 'none', border: 'none', fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', cursor: 'pointer', letterSpacing: '0.06em' }}
+          >
+            sign out
+          </button>
+        </nav>
 
-      {error && (
-        <div style={{
-          position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)',
-          fontSize: '13px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em',
-          textAlign: 'center',
-        }}>
-          your briefing for today is being prepared.<br />check back soon.
-        </div>
-      )}
+        <Wave />
 
-      {articles.map(article => (
-        <ArticleCard
-          key={article.id}
-          article={article}
-          onHover={setHoveredCard}
-          isExpanded={hoveredCard === article.id}
-        />
-      ))}
+        {loading && (
+          <div style={{
+            position: 'absolute', top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            fontSize: '13px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em',
+          }}>
+            preparing your briefing...
+          </div>
+        )}
 
-      <div style={{
-        position: 'absolute',
-        bottom: 0, left: 0, right: 0,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: '32px',
-        padding: '20px 48px',
-        borderTop: '1px solid #e8e6e0',
-      }}>
-        {['01 your stories', '02 something to learn', '03 the world today'].map((label, i, arr) => (
-          <span key={label} style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-            <span style={{ fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.08em' }}>
-              {label}
-            </span>
-            {i < arr.length - 1 && <span style={{ color: '#ddd' }}>—</span>}
-          </span>
+        {error && (
+          <div style={{
+            position: 'absolute', top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            fontSize: '13px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em',
+            textAlign: 'center',
+          }}>
+            your briefing for today is being prepared.<br />check back soon.
+          </div>
+        )}
+
+        {articles.map(article => (
+          <ArticleCard
+            key={article.id}
+            article={article}
+            onHover={setHoveredCard}
+            isExpanded={hoveredCard === article.id}
+          />
         ))}
-      </div>
 
-      {/* TODO: feedback — "how was today's briefing?" placeholder */}
+        <div style={{
+          position: 'absolute',
+          bottom: 0, left: 0, right: 0,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '20px 48px',
+          borderTop: '1px solid #e8e6e0',
+        }}>
+          <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
+            {['01 your stories', '02 something to learn', '03 the world today'].map((label, i, arr) => (
+              <span key={label} style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+                <span style={{ fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.08em' }}>
+                  {label}
+                </span>
+                {i < arr.length - 1 && <span style={{ color: '#ddd' }}>—</span>}
+              </span>
+            ))}
+          </div>
+          <a
+            href="#feedback"
+            style={{ fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.08em', textDecoration: 'none' }}
+          >
+            share feedback ↓
+          </a>
+        </div>
+      </main>
+
+      {/* ── PARTICLES TRANSITION ── */}
+      <FloatingParticles />
+
+      {/* ── FEEDBACK SECTION ── */}
+      <div id="feedback" style={{ backgroundColor: '#f5f4f0', borderTop: '1px solid #e8e6e0' }}>
+        <FeedbackSection userId={userId} />
+      </div>
 
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(4px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes floatDown {
+          0%   { transform: translateY(0px);  opacity: 0; }
+          20%  { opacity: 1; }
+          80%  { opacity: 1; }
+          100% { transform: translateY(100px); opacity: 0; }
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
       `}</style>
-
-    </main>
+    </>
   )
 }
