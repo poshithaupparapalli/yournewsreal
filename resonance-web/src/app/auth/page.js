@@ -213,7 +213,6 @@ export default function AuthPage() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
-                minLength={8}
                 style={{ ...inputStyle, paddingRight: '32px' }}
               />
               <button
