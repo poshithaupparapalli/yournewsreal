@@ -28,7 +28,7 @@ GUARDIAN_BASE_URL = "https://content.guardianapis.com/search"
 # the database while developing
 TEST_MODE = True
 TEST_PAGE_LIMIT = 1   # only fetch this many pages in test mode
-TEST_PAGE_SIZE  = 50  # articles per page in test mode
+TEST_PAGE_SIZE  = 100  # articles per page in test mode
 
 # Production values — uncomment and use when TEST_MODE = False
 # PAGE_SIZE = 200     # Guardian's maximum articles per page

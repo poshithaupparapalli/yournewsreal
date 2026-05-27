@@ -50,9 +50,11 @@ def run():
     from workers.world import world_ranker
     from workers.ranking import summarizer
     from workers import emailer
+    from workers.scrapers import guardian_world_scraper
 
     run_step("Guardian Scraper",   scraper)
     run_step("Jina Fetcher",       jina)
+    run_step("Guardian World Scraper", guardian_world_scraper)
     run_step("Article Embedder",   articleembedder)
     run_step("Clusterer",          clusterer)
     run_step("Ranker",             ranker)
@@ -68,3 +70,7 @@ def run():
 
 if __name__ == "__main__":
     run()
+
+
+
+
