@@ -5,8 +5,8 @@ Runs after ranker.py.
 1. Reads today's world_candidates from Supabase
 2. Sends titles + summaries to GPT-4o-mini to rank by global significance
 3. Stores llm_rank back on each candidate
-4. For each user, assigns top 3 world articles that aren't already
-   in their interest or learning briefing slots
+4. For each user, assigns top 3 world articles whose cluster_id
+   doesn't already appear in their interest or learning briefing slots
 
 Run from backend/:
   python workers/ranking/world_ranker.py
@@ -26,27 +26,50 @@ load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-WORLD_SLOTS = 3
+WORLD_SLOTS = 1
 
 
 def fetch_todays_candidates() -> list[dict]:
     """
-    Fetches today's world candidates from Supabase.
+    Fetches today's world candidates joined with their cluster_id
+    from the articles table.
     """
     today = datetime.now(timezone.utc).date().isoformat()
+
     result = (
         supabase.table("world_candidates")
-        .select("id, guardian_id, title, summary")
+        .select("id, guardian_id, title, summary, date")
         .eq("date", today)
         .execute()
     )
-    return result.data
+
+    candidates = result.data
+    if not candidates:
+        return []
+
+    # Enrich each candidate with cluster_id and article uuid from articles table
+    enriched = []
+    for c in candidates:
+        article = supabase.table("articles").select(
+            "id, cluster_id"
+        ).eq("guardian_id", c["guardian_id"]).execute()
+
+        if article.data:
+            c["article_id"]  = article.data[0]["id"]
+            c["cluster_id"]  = article.data[0]["cluster_id"]
+        else:
+            c["article_id"]  = None
+            c["cluster_id"]  = None
+
+        enriched.append(c)
+
+    return enriched
 
 
 def rank_with_llm(candidates: list[dict]) -> list[str]:
     """
     Sends candidate titles and summaries to GPT-4o-mini.
-    Returns a list of guardian_ids ordered by global significance (most → least).
+    Returns a list of guardian_ids ordered by global significance.
     """
     articles_text = "\n\n".join([
         f"ID: {c['guardian_id']}\nTitle: {c['title']}\nSummary: {c.get('summary', '')}"
@@ -67,9 +90,7 @@ Return format: ["id1", "id2", "id3", ...]"""
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         max_tokens=500,
-        messages=[
-            {"role": "user", "content": prompt}
-        ]
+        messages=[{"role": "user", "content": prompt}]
     )
 
     raw = response.choices[0].message.content.strip()
@@ -80,8 +101,7 @@ Return format: ["id1", "id2", "id3", ...]"""
         if raw.startswith("json"):
             raw = raw[4:]
 
-    ranked_ids = json.loads(raw.strip())
-    return ranked_ids
+    return json.loads(raw.strip())
 
 
 def save_llm_ranks(ranked_ids: list[str]):
@@ -95,10 +115,31 @@ def save_llm_ranks(ranked_ids: list[str]):
         ).eq("guardian_id", guardian_id).execute()
 
 
+def get_existing_cluster_ids(article_ids: list[str]) -> set[int]:
+    """
+    Given a list of article UUIDs already in a user's briefing,
+    returns the set of cluster_ids they belong to.
+    """
+    if not article_ids:
+        return set()
+
+    result = (
+        supabase.table("articles")
+        .select("cluster_id")
+        .in_("id", article_ids)
+        .execute()
+    )
+
+    return {
+        row["cluster_id"]
+        for row in result.data
+        if row["cluster_id"] is not None
+    }
+
+
 def fetch_todays_briefings() -> list[dict]:
     """
-    Fetches all briefings created today so we can check
-    which articles are already assigned to each user.
+    Fetches all briefings created today.
     """
     today = datetime.now(timezone.utc).date().isoformat()
     result = (
@@ -110,35 +151,25 @@ def fetch_todays_briefings() -> list[dict]:
     return result.data
 
 
-def get_article_id_for_guardian_id(guardian_id: str) -> str | None:
-    """
-    Looks up the articles table to get the uuid for a guardian_id.
-    World candidates use guardian_id but briefings store uuid.
-    """
-    result = (
-        supabase.table("articles")
-        .select("id")
-        .eq("guardian_id", guardian_id)
-        .execute()
-    )
-    if result.data:
-        return result.data[0]["id"]
-    return None
-
-
-def assign_world_articles(briefings: list[dict], ranked_candidates: list[dict]):
+def assign_world_articles(briefings: list[dict], ranked_candidates: list[dict]) -> int:
     """
     For each user briefing, walks down the ranked world candidates
-    and assigns the top 3 that aren't already in their briefing.
+    and assigns the top 3 whose cluster_id doesn't already appear
+    in the user's interest or learning picks.
     """
     updated = 0
 
     for briefing in briefings:
         briefing_id = briefing["id"]
-        existing_ids = set(
+
+        # Get all article IDs already in this briefing
+        existing_article_ids = (
             (briefing.get("interest_article_ids") or []) +
             (briefing.get("learning_article_ids") or [])
         )
+
+        # Look up which clusters are already represented
+        existing_cluster_ids = get_existing_cluster_ids(existing_article_ids)
 
         world_ids = []
 
@@ -146,23 +177,27 @@ def assign_world_articles(briefings: list[dict], ranked_candidates: list[dict]):
             if len(world_ids) >= WORLD_SLOTS:
                 break
 
-            # Get the uuid for this guardian_id
-            article_id = get_article_id_for_guardian_id(candidate["guardian_id"])
+            article_id = candidate.get("article_id")
+            cluster_id = candidate.get("cluster_id")
 
+            # Skip if article not found in articles table
             if not article_id:
-                continue  # article not in our articles table yet
+                continue
 
-            if article_id in existing_ids:
-                continue  # already in this user's briefing
+            # Skip if this cluster is already represented in the briefing
+            if cluster_id is not None and cluster_id in existing_cluster_ids:
+                print(f"    Skipping cluster {cluster_id} — already in briefing")
+                continue
 
             world_ids.append(article_id)
-            existing_ids.add(article_id)
+            existing_cluster_ids.add(cluster_id)
 
         # Save world article IDs to briefing
         supabase.table("briefings").update(
             {"world_article_ids": world_ids}
         ).eq("id", briefing_id).execute()
 
+        print(f"  ✓ User {briefing['user_id'][:8]}... → {len(world_ids)} world articles")
         updated += 1
 
     return updated
@@ -173,16 +208,20 @@ def run():
     print("WORLD RANKER")
     print("=" * 55 + "\n")
 
-    # Step 1 — fetch today's world candidates
+    # Step 1 — fetch today's world candidates with cluster IDs
     candidates = fetch_todays_candidates()
     if not candidates:
-        print("No world candidates found for today. Run guardian_world_scraper.py first.")
+        print("No world candidates found for today.")
+        print("Run guardian_world_scraper.py first.")
         return
 
-    print(f"Found {len(candidates)} world candidates\n")
+    print(f"Found {len(candidates)} world candidates")
+    missing = sum(1 for c in candidates if not c.get("article_id"))
+    if missing:
+        print(f"  ⚠ {missing} candidates not found in articles table — will be skipped")
 
     # Step 2 — rank with LLM
-    print("Ranking with GPT-4o-mini...")
+    print("\nRanking with GPT-4o-mini...")
     ranked_ids = rank_with_llm(candidates)
     print(f"  Ranked {len(ranked_ids)} articles")
 
@@ -196,7 +235,7 @@ def run():
         if gid in id_to_candidate
     ]
 
-    # Step 5 — assign to each user's briefing
+    # Step 5 — fetch briefings and assign world articles
     print("\nAssigning world articles to briefings...")
     briefings = fetch_todays_briefings()
 

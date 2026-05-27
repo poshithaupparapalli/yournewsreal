@@ -1,10 +1,10 @@
 """
 guardian_world_scraper.py
 
-Fetches the top 10 articles from Guardian's world section
-and stores them in the world_candidates table.
+Reads Guardian world section articles already in the articles table
+and copies them into world_candidates for the world_ranker to use.
 
-Runs once per day as part of the daily pipeline, before world_ranker.py.
+No API calls needed — just queries what the main scraper already saved.
 
 Run from backend/:
   python workers/scrapers/guardian_world_scraper.py
@@ -12,7 +12,6 @@ Run from backend/:
 
 import os
 import sys
-import requests
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 
@@ -21,34 +20,34 @@ from database.connection import supabase
 
 load_dotenv()
 
-GUARDIAN_API_KEY = os.getenv("GUARDIAN_API_KEY")
-GUARDIAN_BASE_URL = "https://content.guardianapis.com/search"
 
-
-def fetch_world_articles() -> list[dict]:
+def fetch_world_articles_from_db() -> list[dict]:
     """
-    Fetches top 10 articles from Guardian's world section.
+    Fetches today's Guardian world section articles from the articles table.
+    These were already saved by the main scraper — no API call needed.
     """
-    params = {
-        "section":      "world",
-        "show-fields":  "bodyText,trailText,byline",
-        "page-size":    10,
-        "order-by":     "newest",
-        "api-key":      GUARDIAN_API_KEY
-    }
+    today = datetime.now(timezone.utc).date().isoformat()
 
-    response = requests.get(GUARDIAN_BASE_URL, params=params, timeout=15)
-    response.raise_for_status()
-    results = response.json().get("response", {}).get("results", [])
-    print(f"  Fetched {len(results)} world articles from Guardian")
-    return results
+    result = (
+        supabase.table("articles")
+        .select("id, guardian_id, title, url, summary, body_text, published_at")
+        .eq("source", "guardian")
+        .eq("section", "World news")
+        .gte("scraped_at", today)
+        .order("scraped_at", desc=True)
+        .limit(20)
+        .execute()
+    )
+
+    print(f"  Found {len(result.data)} Guardian world articles in articles table")
+    return result.data
 
 
-def save_candidates(articles: list[dict]) -> tuple[int, int]:
+def save_to_world_candidates(articles: list[dict]) -> tuple[int, int]:
     """
-    Saves articles to world_candidates table.
+    Copies world articles into the world_candidates table.
     Upserts on guardian_id so re-running is safe.
-    Clears llm_rank so world_ranker re-ranks fresh each day.
+    Resets llm_rank so world_ranker re-ranks fresh each day.
     Returns (saved, skipped).
     """
     today = datetime.now(timezone.utc).date().isoformat()
@@ -56,17 +55,14 @@ def save_candidates(articles: list[dict]) -> tuple[int, int]:
     skipped = 0
 
     for article in articles:
-        guardian_id = article.get("id", "")
-        fields = article.get("fields", {})
-
         row = {
-            "guardian_id": guardian_id,
-            "title":       article.get("webTitle", ""),
-            "url":         article.get("webUrl", ""),
-            "summary":     fields.get("trailText", ""),
-            "body_text":   fields.get("bodyText", ""),
+            "guardian_id": article["guardian_id"],
+            "title":       article["title"],
+            "url":         article["url"],
+            "summary":     article.get("summary", ""),
+            "body_text":   article.get("body_text", ""),
             "date":        today,
-            "llm_rank":    None,  # will be filled by world_ranker.py
+            "llm_rank":    None,  # filled by world_ranker.py
         }
 
         try:
@@ -75,7 +71,7 @@ def save_candidates(articles: list[dict]) -> tuple[int, int]:
             ).execute()
             saved += 1
         except Exception as e:
-            print(f"  ⚠ Failed to save {guardian_id[:50]}: {e}")
+            print(f"  ⚠ Failed to save {article.get('guardian_id', '')[:50]}: {e}")
             skipped += 1
 
     return saved, skipped
@@ -86,16 +82,17 @@ def run():
     print("GUARDIAN WORLD SCRAPER")
     print("=" * 55 + "\n")
 
-    articles = fetch_world_articles()
+    articles = fetch_world_articles_from_db()
 
     if not articles:
-        print("No articles returned. Exiting.")
+        print("No Guardian world articles found in articles table for today.")
+        print("Make sure the main Guardian scraper has run first.")
         return
 
-    saved, skipped = save_candidates(articles)
+    saved, skipped = save_to_world_candidates(articles)
 
     print(f"\n{'=' * 55}")
-    print(f"DONE — {saved} saved, {skipped} skipped")
+    print(f"DONE — {saved} saved to world_candidates, {skipped} skipped")
     print(f"{'=' * 55}\n")
 
 
