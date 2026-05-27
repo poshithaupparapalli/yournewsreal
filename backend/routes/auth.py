@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import bcrypt
+import hashlib
 import sys
 import os
 from dotenv import load_dotenv
@@ -88,9 +89,21 @@ async def login(data: LoginData):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     user = result.data[0]
+    stored_hash = user["password_hash"]
 
-    # Verify password
-    if not bcrypt.checkpw(data.password.encode(), user["password_hash"].encode()):
+    # Check bcrypt first (new accounts), then fall back to SHA256 (old waitlist accounts)
+    password_ok = False
+    if stored_hash.startswith("$2b$") or stored_hash.startswith("$2a$"):
+        password_ok = bcrypt.checkpw(data.password.encode(), stored_hash.encode())
+    else:
+        sha256_hash = hashlib.sha256(data.password.encode()).hexdigest()
+        if sha256_hash == stored_hash:
+            password_ok = True
+            # Silently upgrade to bcrypt so next login uses the stronger hash
+            new_hash = bcrypt.hashpw(data.password.encode(), bcrypt.gensalt()).decode()
+            supabase.table("users_waitlist").update({"password_hash": new_hash}).eq("id", user["id"]).execute()
+
+    if not password_ok:
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     return {
