@@ -80,7 +80,7 @@ async def onboarding(data: OnboardingData):
 async def login(data: LoginData):
 
     # Look up user by email
-    result = supabase.table("users").select(
+    result = supabase.table("users_waitlist").select(
         "id, name, email, password_hash"
     ).eq("email", data.email).execute()
 
