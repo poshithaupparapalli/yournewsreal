@@ -136,15 +136,11 @@ export default function Home() {
           letterSpacing: '0.1em',
           marginBottom: '40px',
         }}>
-          your morning briefing
+          Your morning briefing
         </div>
         <h1 style={s.h1}>
-          news that<br />resonates.
+          News that<br />resonates.
         </h1>
-        <p style={s.body}>
-          staying informed shouldn't be a chore. one quiet email,
-          every morning — shaped around what you genuinely care about.
-        </p>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <input
             type="email"
@@ -162,9 +158,9 @@ export default function Home() {
             }}
           />
           <button style={{
-            background: '#1a1a1a',
-            color: '#f5f4f0',
-            border: 'none',
+            background: 'transparent',
+            color: '#1a1a1a',
+            border: '1px solid #1a1a1a',
             padding: '10px 24px',
             fontSize: '13px',
             fontFamily: 'sans-serif',
@@ -183,7 +179,7 @@ export default function Home() {
           color: '#bbb',
           letterSpacing: '0.06em',
         }}>
-          scroll to see how it works ↓
+          Scroll to see how it works ↓
         </div>
       </section>
 
@@ -193,7 +189,7 @@ export default function Home() {
       {/* Step 01 */}
       <section style={s.section}>
         <FadeIn>
-          <div style={s.label}>01 — tell us about you</div>
+          <div style={s.label}>01. Tell us about you</div>
         </FadeIn>
         <FadeIn delay={0.1}>
           <h2 style={{
@@ -203,12 +199,12 @@ export default function Home() {
             lineHeight: '1.2',
             marginBottom: '24px',
           }}>
-            describe your interests<br />in your own words.
+            Describe your interests<br />in your own words.
           </h2>
         </FadeIn>
         <FadeIn delay={0.2}>
           <p style={{ ...s.body, marginBottom: '40px' }}>
-            no topic toggles. no checkbox lists. just tell us what you follow,
+            No topic toggles. No checkbox lists. Just tell us what you follow,
             what you're curious about, and what you want to understand better.
           </p>
         </FadeIn>
@@ -223,7 +219,7 @@ export default function Home() {
               letterSpacing: '0.06em',
               marginBottom: '20px',
             }}>
-              what are your current interests?
+              What are your current interests?
             </div>
             <div style={{
               fontSize: '14px',
@@ -249,7 +245,7 @@ export default function Home() {
               letterSpacing: '0.06em',
               marginBottom: '12px',
             }}>
-              what do you want to understand better?
+              What do you want to understand better?
             </div>
             <div style={{
               fontSize: '14px',
@@ -257,7 +253,7 @@ export default function Home() {
               color: '#bbb',
               fontStyle: 'italic',
             }}>
-              geopolitics, how central banks work...
+              Geopolitics, how central banks work...
             </div>
           </div>
         </FadeIn>
@@ -268,7 +264,7 @@ export default function Home() {
       {/* Step 02 */}
       <section style={s.section}>
         <FadeIn>
-          <div style={s.label}>02 — how we find your articles</div>
+          <div style={s.label}>02. How we find your articles</div>
         </FadeIn>
         <FadeIn delay={0.1}>
           <h2 style={{
@@ -278,13 +274,13 @@ export default function Home() {
             lineHeight: '1.2',
             marginBottom: '24px',
           }}>
-            not filtered by topic.<br />matched by meaning.
+            Not filtered by topic.<br />Matched by meaning.
           </h2>
         </FadeIn>
         <FadeIn delay={0.2}>
           <p style={{ ...s.body, marginBottom: '40px' }}>
-            we read every article published that morning across dozens of sources.
-            our algorithm finds the ones whose meaning most closely aligns with yours —
+            We read every article published that morning across dozens of sources.
+            Our algorithm finds the ones whose meaning most closely aligns with yours,
             not just by keyword, but by semantic understanding.
           </p>
         </FadeIn>
@@ -299,7 +295,7 @@ export default function Home() {
               letterSpacing: '0.06em',
               marginBottom: '20px',
             }}>
-              sources scanned this morning
+              Sources scanned this morning
             </div>
             <div style={{
               display: 'flex',
@@ -340,7 +336,7 @@ export default function Home() {
       {/* Step 03 */}
       <section style={s.section}>
         <FadeIn>
-          <div style={s.label}>03 — your briefing</div>
+          <div style={s.label}>03. Your briefing</div>
         </FadeIn>
         <FadeIn delay={0.1}>
           <h2 style={{
@@ -350,13 +346,12 @@ export default function Home() {
             lineHeight: '1.2',
             marginBottom: '24px',
           }}>
-            arrives every morning.<br />nothing more.
+            Arrives every morning.<br />Nothing more.
           </h2>
         </FadeIn>
         <FadeIn delay={0.2}>
           <p style={{ ...s.body, marginBottom: '40px' }}>
-            nine articles. a short summary of each. a link if you want to go deeper.
-            no notifications. no feed. no algorithm optimizing for your attention.
+            Five articles. A short summary of each. A link if you want to go deeper.
           </p>
         </FadeIn>
 
@@ -372,7 +367,7 @@ export default function Home() {
               paddingBottom: '16px',
               borderBottom: '1px solid #e8e6e0',
             }}>
-              your resonance — friday, may 22
+              Your resonance, Friday, May 22
             </div>
 
             {[
@@ -392,7 +387,7 @@ export default function Home() {
                 tag: 'learning',
                 title: 'How the Federal Reserve actually decides interest rates',
                 source: 'axios',
-                summary: 'A deep dive into the FOMC meeting process — who votes, what data they consider, and why small language changes in the statement move markets.',
+                summary: 'A deep dive into the FOMC meeting process: who votes, what data they consider, and why small language changes in the statement move markets.',
               },
             ].map((article, i) => (
               <div key={i} style={{
@@ -437,7 +432,7 @@ export default function Home() {
               color: '#bbb',
               marginTop: '8px',
             }}>
-              + 6 more articles
+              + 2 more articles
             </div>
           </div>
         </FadeIn>
@@ -447,20 +442,20 @@ export default function Home() {
       <div style={s.divider} id="about" />
       <section style={s.section}>
         <FadeIn>
-          <div style={s.label}>about</div>
+          <div style={s.label}>About</div>
           <p style={{ ...s.body, marginBottom: '20px' }}>
-            staying informed shouldn't be a chore. but for most people, it is.
-            not because they don't care, but because finding news that actually
+            Staying informed shouldn't be a chore. But for most people, it is.
+            Not because they don't care, but because finding news that actually
             matters to them takes more effort than it should.
           </p>
           <p style={{ ...s.body, marginBottom: '20px' }}>
-            we built resonance because we think that's worth fixing. news should
+            We built Resonance because we think that's worth fixing. News should
             come to you, shaped around what you genuinely care about, not what
             gets the most clicks or happens to surface on a front page.
           </p>
           <p style={s.body}>
-            one quiet email, every morning. no infinite scroll. no manufactured
-            urgency. just the news that resonates with you.
+            One quiet email, every morning. No infinite scroll. No manufactured
+            urgency. Just the news that resonates with you.
           </p>
         </FadeIn>
       </section>
@@ -469,8 +464,8 @@ export default function Home() {
       <div style={s.divider} />
       <section style={{ ...s.section, paddingTop: '80px' }}>
         <FadeIn>
-          <div style={s.label}>team</div>
-          {['kent neureiter', 'poshitha upparapalli'].map(name => (
+          <div style={s.label}>Team</div>
+          {['Kent Neureiter', 'Poshitha Upparapalli'].map(name => (
             <div key={name} style={{
               padding: '16px 0',
               borderBottom: '1px solid #e8e6e0',
@@ -491,7 +486,7 @@ export default function Home() {
         fontFamily: 'sans-serif',
         color: '#bbb',
       }}>
-        © 2026 resonance
+        © 2026 Resonance
       </footer>
 
       <style>{`
