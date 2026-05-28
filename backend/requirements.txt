@@ -6,4 +6,4 @@ bcrypt
 pydantic
 feedparser
 requests
-sentence-transformers
+openai
