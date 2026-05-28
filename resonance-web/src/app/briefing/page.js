@@ -21,6 +21,33 @@ const SCORE_LABELS = {
   5: 'exactly right',
 }
 
+function BackgroundDots() {
+  const dots = [
+    { left: '8%',  top: '12%' }, { left: '92%', top: '8%'  },
+    { left: '45%', top: '6%'  }, { left: '78%', top: '22%' },
+    { left: '15%', top: '38%' }, { left: '88%', top: '45%' },
+    { left: '3%',  top: '55%' }, { left: '60%', top: '75%' },
+    { left: '30%', top: '82%' }, { left: '95%', top: '70%' },
+    { left: '52%', top: '88%' }, { left: '20%', top: '65%' },
+    { left: '70%', top: '52%' }, { left: '38%', top: '30%' },
+  ]
+  return (
+    <>
+      {dots.map((d, i) => (
+        <div key={i} style={{
+          position: 'absolute',
+          left: d.left, top: d.top,
+          width: '2.5px', height: '2.5px',
+          borderRadius: '50%',
+          background: '#c4c0b8',
+          opacity: 0.5,
+          pointerEvents: 'none',
+        }} />
+      ))}
+    </>
+  )
+}
+
 function Wave() {
   return (
     <svg
@@ -102,8 +129,13 @@ function ArticleCard({ article, onHover, isExpanded }) {
         position: 'absolute',
         left: article.position.left,
         top: article.position.top,
-        maxWidth: '260px',
+        maxWidth: '300px',
         cursor: 'default',
+        background: isExpanded ? 'rgba(245, 244, 240, 0.92)' : 'transparent',
+        padding: isExpanded ? '16px' : '0',
+        backdropFilter: isExpanded ? 'blur(4px)' : 'none',
+        transition: 'padding 0.3s ease, background 0.3s ease',
+        zIndex: isExpanded ? 20 : 1,
       }}
     >
       <div style={{
@@ -209,7 +241,7 @@ function FeedbackSection({ userId }) {
         textTransform: 'uppercase',
         marginBottom: '16px',
       }}>
-        feedback
+        Feedback
       </div>
       <h2 style={{
         fontFamily: 'Georgia, serif',
@@ -219,7 +251,7 @@ function FeedbackSection({ userId }) {
         marginBottom: '10px',
         letterSpacing: '-0.01em',
       }}>
-        how was today's briefing?
+        How was today's briefing?
       </h2>
       <p style={{
         fontSize: '13px',
@@ -228,7 +260,7 @@ function FeedbackSection({ userId }) {
         lineHeight: '1.6',
         marginBottom: '40px',
       }}>
-        we're just getting started. brutal honesty is genuinely appreciated.
+        We're just getting started. Brutal honesty is genuinely appreciated.
       </p>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
@@ -242,7 +274,7 @@ function FeedbackSection({ userId }) {
             marginBottom: '14px',
           }}>
             <label style={{ fontSize: '12px', fontFamily: 'sans-serif', color: '#666', letterSpacing: '0.04em' }}>
-              how relevant were the articles?
+              How relevant were the articles?
             </label>
             <span style={{ fontSize: '12px', fontFamily: 'sans-serif', color: '#aaa', fontStyle: 'italic' }}>
               {SCORE_LABELS[score]}
@@ -283,7 +315,7 @@ function FeedbackSection({ userId }) {
             letterSpacing: '0.04em',
             marginBottom: '12px',
           }}>
-            what would make this better?
+            What would make this better?
           </label>
           <textarea
             placeholder="wrong topics, too long, missing something... anything helps."
@@ -310,18 +342,18 @@ function FeedbackSection({ userId }) {
           type="submit"
           disabled={loading}
           style={{
-            background: loading ? '#ccc' : '#1a1a1a',
-            color: '#f5f4f0',
-            border: 'none',
+            background: 'transparent',
+            color: loading ? '#aaa' : '#1a1a1a',
+            border: `1px solid ${loading ? '#ccc' : '#1a1a1a'}`,
             padding: '13px',
             fontSize: '12px',
             fontFamily: 'sans-serif',
             letterSpacing: '0.06em',
             cursor: loading ? 'not-allowed' : 'pointer',
-            transition: 'background 0.2s ease',
+            transition: 'all 0.2s ease',
           }}
         >
-          {loading ? 'sending...' : 'submit feedback'}
+          {loading ? 'Sending...' : 'Submit feedback'}
         </button>
       </form>
     </section>
@@ -381,7 +413,7 @@ export default function BriefingPage() {
       <main style={{
         backgroundColor: '#f5f4f0',
         height: '100vh',
-        overflow: 'hidden',
+        overflow: 'visible',
         position: 'relative',
         fontFamily: 'Georgia, serif',
         color: '#1a1a1a',
@@ -397,8 +429,13 @@ export default function BriefingPage() {
           zIndex: 10,
         }}>
           <span style={{ fontSize: '14px', letterSpacing: '0.06em' }}>resonance</span>
-          <div style={{ fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em' }}>
-            {today} · {greeting}
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '13px', fontFamily: 'Georgia, serif', color: '#1a1a1a', letterSpacing: '0.02em' }}>
+              {greeting}
+            </div>
+            <div style={{ fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em', marginTop: '2px' }}>
+              {today}
+            </div>
           </div>
           <button
             onClick={() => { localStorage.removeItem('user_id'); localStorage.removeItem('user_name'); router.push('/') }}
@@ -408,6 +445,7 @@ export default function BriefingPage() {
           </button>
         </nav>
 
+        <BackgroundDots />
         <Wave />
 
         {loading && (
@@ -461,22 +499,37 @@ export default function BriefingPage() {
           </div>
           <a
             href="#feedback"
-            style={{ fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.08em', textDecoration: 'none' }}
+            style={{ fontSize: '12px', fontFamily: 'sans-serif', color: '#666', letterSpacing: '0.08em', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}
           >
+            <span style={{
+              display: 'inline-block',
+              width: '7px', height: '7px',
+              borderRadius: '50%',
+              background: '#999',
+              animation: 'pulse 2s ease-in-out infinite',
+              flexShrink: 0,
+            }} />
             share feedback ↓
           </a>
         </div>
       </main>
 
-      {/* ── PARTICLES TRANSITION ── */}
-      <FloatingParticles />
-
       {/* ── FEEDBACK SECTION ── */}
-      <div id="feedback" style={{ backgroundColor: '#f5f4f0', borderTop: '1px solid #e8e6e0' }}>
+      <div id="feedback" style={{
+        backgroundColor: '#f5f4f0',
+        paddingTop: '60px',
+        opacity: hoveredCard ? 0 : 1,
+        pointerEvents: hoveredCard ? 'none' : 'auto',
+        transition: 'opacity 0.3s ease',
+      }}>
         <FeedbackSection userId={userId} />
       </div>
 
       <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.4); }
+        }
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(4px); }
           to   { opacity: 1; transform: translateY(0); }
