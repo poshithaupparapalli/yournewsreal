@@ -58,7 +58,7 @@ export default function Home() {
       position: 'fixed',
       top: 0, left: 0, right: 0,
       zIndex: 100,
-      backgroundColor: '#e6c12f',
+      backgroundColor: '#f2f2f2',
       borderBottom: '1px solid #e8e6e0',
     },
     navBrand: {
