@@ -45,7 +45,7 @@ export default function Home() {
 
   const s = {
     page: {
-      backgroundColor: '#f5f4f0',
+      backgroundColor: '#eac42a',
       fontFamily: "'Georgia', 'Times New Roman', serif",
       color: '#1a1a1a',
       overflowX: 'hidden',
@@ -132,7 +132,7 @@ export default function Home() {
         <div style={{
           fontSize: '11px',
           fontFamily: 'sans-serif',
-          color: '#999',
+          color: '#dedede',
           letterSpacing: '0.1em',
           marginBottom: '40px',
         }}>
