@@ -31,13 +31,22 @@ class ResetPasswordRequest(BaseModel):
 
 @router.post("/forgot-password")
 async def forgot_password(data: ForgotPasswordRequest):
-    result = supabase.table("users_waitlist").select("id, name, email").eq("email", data.email).execute()
+    user = None
+    source_table = None
+
+    result = supabase.table("users").select("id, name, email").eq("email", data.email).execute()
+    if result.data:
+        user = result.data[0]
+        source_table = "users"
+    else:
+        result = supabase.table("users_waitlist").select("id, name, email").eq("email", data.email).execute()
+        if result.data:
+            user = result.data[0]
+            source_table = "users_waitlist"
 
     # Always return success so we don't leak whether an email exists
-    if not result.data:
+    if not user:
         return {"success": True}
-
-    user = result.data[0]
     token = secrets.token_urlsafe(32)
     expires_at = (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
 
@@ -92,7 +101,10 @@ async def reset_password(data: ResetPasswordRequest):
     new_hash = bcrypt.hashpw(data.new_password.encode(), bcrypt.gensalt()).decode()
     user_id = token_row["user_id"]
 
-    supabase.table("users_waitlist").update({"password_hash": new_hash}).eq("id", user_id).execute()
+    # Update whichever table the user is in
+    in_users = supabase.table("users").select("id").eq("id", user_id).execute()
+    update_table = "users" if in_users.data else "users_waitlist"
+    supabase.table(update_table).update({"password_hash": new_hash}).eq("id", user_id).execute()
     supabase.table("password_reset_tokens").update({"used": True}).eq("id", token_row["id"]).execute()
 
     return {"success": True}
