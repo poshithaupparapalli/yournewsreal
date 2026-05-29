@@ -26,7 +26,7 @@ OUTLET_NAME = "npr"
 RSS_URL     = "https://feeds.npr.org/1001/rss.xml"
 
 # How far back to look for articles (should match how often this scraper runs)
-LOOKBACK_HOURS = 2.5
+LOOKBACK_HOURS = 20
 
 # Browser-like headers so RSS servers don't block us
 RSS_HEADERS = {
