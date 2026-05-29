@@ -80,18 +80,25 @@ async def onboarding(data: OnboardingData):
 @router.post("/login")
 async def login(data: LoginData):
 
-    # Look up user by email
-    result = supabase.table("users_waitlist").select(
-        "id, name, email, password_hash"
-    ).eq("email", data.email).execute()
+    # Check users table first (new signups), then fall back to users_waitlist (original waitlist)
+    user = None
+    source_table = None
 
-    if not result.data:
+    result = supabase.table("users").select("id, name, email, password_hash").eq("email", data.email).execute()
+    if result.data:
+        user = result.data[0]
+        source_table = "users"
+    else:
+        result = supabase.table("users_waitlist").select("id, name, email, password_hash").eq("email", data.email).execute()
+        if result.data:
+            user = result.data[0]
+            source_table = "users_waitlist"
+
+    if not user:
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    user = result.data[0]
     stored_hash = user["password_hash"]
 
-    # Check bcrypt first (new accounts), then fall back to SHA256 (old waitlist accounts)
     password_ok = False
     if stored_hash.startswith("$2b$") or stored_hash.startswith("$2a$"):
         password_ok = bcrypt.checkpw(data.password.encode(), stored_hash.encode())
@@ -99,9 +106,8 @@ async def login(data: LoginData):
         sha256_hash = hashlib.sha256(data.password.encode()).hexdigest()
         if sha256_hash == stored_hash:
             password_ok = True
-            # Silently upgrade to bcrypt so next login uses the stronger hash
             new_hash = bcrypt.hashpw(data.password.encode(), bcrypt.gensalt()).decode()
-            supabase.table("users_waitlist").update({"password_hash": new_hash}).eq("id", user["id"]).execute()
+            supabase.table(source_table).update({"password_hash": new_hash}).eq("id", user["id"]).execute()
 
     if not password_ok:
         raise HTTPException(status_code=401, detail="Invalid email or password")
