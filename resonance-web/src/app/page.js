@@ -45,7 +45,7 @@ export default function Home() {
 
   const s = {
     page: {
-      backgroundColor: '#c6c6c6',
+      backgroundColor: '#ffffff',
       fontFamily: "'Georgia', 'Times New Roman', serif",
       color: '#1a1a1a',
       overflowX: 'hidden',
