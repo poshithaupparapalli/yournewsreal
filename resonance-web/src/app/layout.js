@@ -3,6 +3,7 @@ import "./globals.css";
 export const metadata = {
   title: "resonance",
   description: "your morning briefing, shaped around what you care about.",
+  icons: { icon: '/logo.png' },
 };
 
 export default function RootLayout({ children }) {
