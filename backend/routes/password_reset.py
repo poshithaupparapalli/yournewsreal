@@ -60,7 +60,7 @@ async def forgot_password(data: ForgotPasswordRequest):
     first_name = (user.get("name") or "there").split()[0]
 
     resend.Emails.send({
-        "from":    "resonance <onboarding@resend.dev>",
+        "from":    "resonance <noreply@resonance-news.com>",
         "to":      [data.email],
         "subject": "reset your resonance password",
         "html":    f"""
