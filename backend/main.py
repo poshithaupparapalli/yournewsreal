@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes.auth import router as auth_router
 from routes.briefing import router as briefing_router
 from routes.feedback import router as feedback_router
-from routes.password_reset import router as password_reset_router                                             
+from routes.password_reset import router as password_reset_router
+from routes.pipeline import router as pipeline_router                                             
                   
   # Create the FastAPI app — this is the actual server                                      
 app = FastAPI() 
@@ -25,7 +26,8 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(briefing_router)
 app.include_router(feedback_router)
-app.include_router(password_reset_router)                                                           
+app.include_router(password_reset_router)
+app.include_router(pipeline_router)                                                           
                   
   # A simple root route so you can check the server is running                              
   # Open http://localhost:8000 in your browser and you should see this

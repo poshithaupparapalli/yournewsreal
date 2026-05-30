@@ -250,5 +250,33 @@ def run():
     print(f"{'=' * 55}\n")
 
 
+def run_for_user(user_id: str):
+    """Runs the ranker for a single user. Used for on-demand briefing generation."""
+    print(f"\nRANKER — single user {user_id[:8]}...")
+
+    # Check users table first (new signups), then users_waitlist
+    result = supabase.table("users").select("id, interests_raw_vector, learning_goals_raw_vector").eq("id", user_id).execute()
+    if not result.data:
+        result = supabase.table("users_waitlist").select("id, interests_raw_vector, learning_goals_raw_vector").eq("id", user_id).execute()
+
+    if not result.data:
+        raise Exception(f"User {user_id} not found in either table")
+
+    user = result.data[0]
+
+    if not user.get("interests_raw_vector") or not user.get("learning_goals_raw_vector"):
+        raise Exception(f"User {user_id} has no embeddings yet")
+
+    articles = fetch_articles()
+    if not articles:
+        raise Exception("No articles with embeddings found")
+
+    article_embeddings = np.array([parse_vector(a["embedding"]) for a in articles], dtype=np.float32)
+
+    interest_ids, learning_ids = build_briefing(user, articles, article_embeddings)
+    save_briefing(user_id, interest_ids, learning_ids)
+    print(f"  ✓ {user_id[:8]}... → {len(interest_ids)} interest, {len(learning_ids)} learning")
+
+
 if __name__ == "__main__":
     run()

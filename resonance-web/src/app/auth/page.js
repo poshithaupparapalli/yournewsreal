@@ -59,7 +59,9 @@ export default function AuthPage() {
         if (!res.ok) throw new Error(data.detail || 'Signup failed')
         localStorage.setItem('user_id', data.user_id)
         localStorage.setItem('user_name', name)
-        router.push('/briefing')
+        // Kick off on-demand pipeline in background, then show waiting page
+        fetch(`${API_URL}/run-pipeline/${data.user_id}`, { method: 'POST' })
+        router.push('/waiting')
       } else {
         const res = await fetch(`${API_URL}/login`, {
           method: 'POST',
