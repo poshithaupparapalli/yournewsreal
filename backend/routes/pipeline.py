@@ -8,7 +8,7 @@ router = APIRouter()
 
 def _run_for_user(user_id: str):
     from workers.ranking import ranker
-    from workers.world import world_ranker
+    from workers.ranking import world_ranker
     from workers.ranking import summarizer
 
     print(f"\n=== ON-DEMAND PIPELINE for user {user_id[:8]}... ===")
