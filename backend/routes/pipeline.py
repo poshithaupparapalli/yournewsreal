@@ -10,7 +10,7 @@ def _run_for_user(user_id: str):
     from workers.ranking import ranker
     from workers.ranking import world_ranker
     from workers.ranking import summarizer
-    from workers.scrapers import guardian_world_scraper
+    from workers.scrapers import guardian_world_scraper  python send_announcement.py
 
     print(f"\n=== ON-DEMAND PIPELINE for user {user_id[:8]}... ===")
     ranker.run_for_user(user_id)

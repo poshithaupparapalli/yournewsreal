@@ -84,6 +84,7 @@ async def login(data: LoginData):
     user = None
     source_table = None
 
+    result = supabase.table("users").select("id, name, email, password_hash").eq("email", data.email).execute()
     if result.data:
         user = result.data[0]
         source_table = "users"
