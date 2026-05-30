@@ -6,6 +6,7 @@ Assumes scraper_pipeline.py has already been collecting article links
 throughout the day via RSS feeds.
 
 Steps:
+  0. Reset tables                 — clear article_links, articles, briefings, world_candidates
   1. test_guardian2.py            — fetch Guardian articles → articles table
   2. jina.py                      — fetch full text for RSS links → articles table
   3. embedders/articleembedder.py — embed all new articles
@@ -24,6 +25,34 @@ import os
 from datetime import datetime, timezone
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+def reset_tables():
+    """
+    Clears all daily working tables so users never see
+    the same articles two days in a row.
+    Tables cleared: article_links, articles, briefings, world_candidates
+    Users and user embeddings are never touched.
+    """
+    from database.connection import supabase
+
+    tables = ["briefings", "world_candidates", "articles", "article_links"]
+
+    print(f"\n{'─' * 55}")
+    print("STEP: Reset Tables")
+    print(f"{'─' * 55}")
+
+    for table in tables:
+        try:
+            # Delete all rows — neq is a workaround since Supabase
+            # doesn't allow a bare delete() without a filter
+            supabase.table(table).delete().neq("id", 0).execute()
+            print(f"  ✓ {table} cleared")
+        except Exception as e:
+            print(f"  ✗ Failed to clear {table}: {e}")
+            raise
+
+    print("✓ Reset complete")
 
 
 def run_step(name: str, module):
@@ -54,6 +83,7 @@ def run():
     from workers.ranking import world_ranker
     from workers.ranking import summarizer
 
+    reset_tables()
     run_step("Guardian Scraper",       test_guardian2)
     run_step("Jina Fetcher",           jina)
     run_step("Article Embedder",       articleembedder)
