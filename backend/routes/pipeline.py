@@ -15,8 +15,8 @@ def _run_for_user(user_id: str):
     print(f"\n=== ON-DEMAND PIPELINE for user {user_id[:8]}... ===")
     ranker.run_for_user(user_id)
     guardian_world_scraper.run()
-    world_ranker.run()
-    summarizer.run()
+    world_ranker.run_for_user(user_id)  # fixed: scoped to this user only
+    summarizer.run()                    # safe: skips already-summarized articles
     print(f"=== DONE for user {user_id[:8]}... ===\n")
 
 
