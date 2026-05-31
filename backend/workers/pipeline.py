@@ -1,12 +1,12 @@
 """
 pipeline.py
 
-Runs once daily at 7am UTC.
+Runs once daily at 7am EST.
 Assumes scraper_pipeline.py has already been collecting article links
 throughout the day via RSS feeds.
 
 Steps:
-  0. Reset tables                 — clear article_links, articles, briefings, world_candidates
+  0. truncate_daily_tables()      — clear briefings, world_candidates, articles
   1. test_guardian2.py            — fetch Guardian articles → articles table
   2. jina.py                      — fetch full text for RSS links → articles table
   3. embedders/articleembedder.py — embed all new articles
@@ -15,6 +15,7 @@ Steps:
   6. scrapers/guardian_world_scraper.py — fetch world article candidates
   7. ranking/world_ranker.py      — pick top world article per user → briefings
   8. ranking/summarizer.py        — generate LLM summaries for all briefing articles
+  9. truncate_article_links()     — clear article_links now that pipeline is done
 
 Run from backend/:
   python workers/pipeline.py
@@ -28,31 +29,31 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def reset_tables():
-    """
-    Clears all daily working tables so users never see
-    the same articles two days in a row.
-    Tables cleared: article_links, articles, briefings, world_candidates
-    Users and user embeddings are never touched.
-    """
     from database.connection import supabase
 
-    tables = ["briefings", "world_candidates", "articles", "article_links"]
+    print(f"\n{'─' * 55}")
+    print("STEP: Reset Tables (briefings, world_candidates, articles)")
+    print(f"{'─' * 55}")
+    try:
+        supabase.rpc("truncate_daily_tables").execute()
+        print("✓ Reset complete")
+    except Exception as e:
+        print(f"✗ Failed to reset tables: {e}")
+        raise
+
+
+def clear_article_links():
+    from database.connection import supabase
 
     print(f"\n{'─' * 55}")
-    print("STEP: Reset Tables")
+    print("STEP: Clear Article Links")
     print(f"{'─' * 55}")
-
-    for table in tables:
-        try:
-            # Delete all rows — neq is a workaround since Supabase
-            # doesn't allow a bare delete() without a filter
-            supabase.table(table).delete().neq("id", 0).execute()
-            print(f"  ✓ {table} cleared")
-        except Exception as e:
-            print(f"  ✗ Failed to clear {table}: {e}")
-            raise
-
-    print("✓ Reset complete")
+    try:
+        supabase.rpc("truncate_article_links").execute()
+        print("✓ article_links cleared")
+    except Exception as e:
+        print(f"✗ Failed to clear article_links: {e}")
+        raise
 
 
 def run_step(name: str, module):
@@ -92,6 +93,7 @@ def run():
     run_step("Guardian World Scraper", guardian_world_scraper)
     run_step("World Ranker",           world_ranker)
     run_step("Summarizer",             summarizer)
+    clear_article_links()
 
     elapsed = (datetime.now(timezone.utc) - start).seconds
     print(f"\n{'=' * 55}")
