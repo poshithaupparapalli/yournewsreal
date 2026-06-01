@@ -46,9 +46,9 @@ function ParticleHero() {
 
     function waveY(x, t, H) {
       return H * 0.5
-        + Math.sin(x * 0.012 + t) * 48
-        + Math.sin(x * 0.007 - t * 1.3) * 28
-        + Math.sin(x * 0.02 + t * 0.7) * 14
+        + Math.sin(x * 0.012 + t) * (H * 0.18)
+        + Math.sin(x * 0.007 - t * 1.3) * (H * 0.10)
+        + Math.sin(x * 0.02 + t * 0.7) * (H * 0.05)
     }
 
     function init() {
@@ -63,7 +63,7 @@ function ParticleHero() {
       const t = performance.now() * 0.001
       particlesRef.current = Array.from({ length: N }, () => {
         const x = Math.random() * W
-        const spread = (Math.random() - 0.5) * 140
+        const spread = (Math.random() - 0.5) * (H * 0.28)
         const hy = waveY(x, t, H) + spread
         return {
           x, y: hy, hx: x, hy,
