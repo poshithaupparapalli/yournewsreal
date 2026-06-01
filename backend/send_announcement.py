@@ -54,7 +54,7 @@ def send_announcement(name: str, email: str):
             Read my briefing
           </a>
 
-          <p style="font-size:15px;line-height:1.8;margin-top:40px;margin-bottom:20px;color:#444">
+          <p style="font-size:16px;line-height:1.8;margin-top:40px;margin-bottom:20px;color:#1a1a1a">
             If you get the chance, we would appreciate any feedback you may have to help us
             better understand how we are doing to ultimately improve your briefings. Any
             comments are helpful and they will be anonymous.
