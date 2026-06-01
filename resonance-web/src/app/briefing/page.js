@@ -541,20 +541,19 @@ export default function BriefingPage() {
           {/* Wave */}
           <div style={{ position: 'relative', height: '80px', overflow: 'hidden', margin: '16px 0' }}>
             <svg
-              style={{ position: 'absolute', top: '50%', left: 0, width: '100%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+              style={{ position: 'absolute', top: '50%', left: 0, width: '200%', transform: 'translateY(-50%)', pointerEvents: 'none', animation: 'waveSlide 6s linear infinite' }}
               height="80"
-              viewBox="0 0 390 80"
+              viewBox="0 0 780 80"
               preserveAspectRatio="none"
             >
               <path
-                d="M0,40 C65,10 130,70 195,40 C260,10 325,70 390,40"
+                d="M0,40 C65,10 130,70 195,40 C260,10 325,70 390,40 C455,10 520,70 585,40 C650,10 715,70 780,40"
                 fill="none" stroke="#c8c4bc" strokeWidth="1.5"
-                style={{ animation: 'waveMobile 4s ease-in-out infinite alternate' }}
               />
               <path
-                d="M0,44 C55,14 120,74 195,44 C270,14 335,74 390,44"
+                d="M0,44 C55,14 120,74 195,44 C270,14 335,74 390,44 C455,14 520,74 585,44 C650,14 715,74 780,44"
                 fill="none" stroke="#c8c4bc" strokeWidth="0.8" opacity="0.5"
-                style={{ animation: 'waveMobile 5s ease-in-out infinite alternate-reverse' }}
+                style={{ animation: 'waveSlide 9s linear infinite' }}
               />
             </svg>
           </div>
@@ -595,9 +594,9 @@ export default function BriefingPage() {
         </div>
 
         <style>{`
-          @keyframes waveMobile {
-            from { d: path("M0,40 C65,10 130,70 195,40 C260,10 325,70 390,40"); }
-            to   { d: path("M0,40 C65,70 130,10 195,40 C260,70 325,10 390,40"); }
+          @keyframes waveSlide {
+            from { transform: translateY(-50%) translateX(0); }
+            to   { transform: translateY(-50%) translateX(-50%); }
           }
           @keyframes fadeIn {
             from { opacity: 0; transform: translateY(4px); }
