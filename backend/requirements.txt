@@ -9,3 +9,5 @@ requests
 openai
 resend
 numpy
+igraph
+leidenalg

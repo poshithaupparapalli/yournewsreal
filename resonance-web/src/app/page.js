@@ -29,6 +29,218 @@ function FadeIn({ children, delay = 0, style = {} }) {
   )
 }
 
+function ParticleHero() {
+  const containerRef = useRef(null)
+  const canvasRef = useRef(null)
+  const mouseRef = useRef({ x: -9999, y: -9999 })
+  const particlesRef = useRef([])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const container = containerRef.current
+    if (!canvas || !container) return
+    const ctx = canvas.getContext('2d')
+
+    const COLORS = ['#5daabc','#3d8fa3','#1d6e80','#8bcdd8','#2a7a8c','#a0d4dc','#1a5566']
+    const N = 220
+
+    function waveY(x, t, H) {
+      return H * 0.5
+        + Math.sin(x * 0.012 + t) * 48
+        + Math.sin(x * 0.007 - t * 1.3) * 28
+        + Math.sin(x * 0.02 + t * 0.7) * 14
+    }
+
+    function init() {
+      const W = container.offsetWidth
+      const H = container.offsetHeight
+      canvas.width = W * devicePixelRatio
+      canvas.height = H * devicePixelRatio
+      canvas.style.width = W + 'px'
+      canvas.style.height = H + 'px'
+      ctx.scale(devicePixelRatio, devicePixelRatio)
+
+      const t = performance.now() * 0.001
+      particlesRef.current = Array.from({ length: N }, () => {
+        const x = Math.random() * W
+        const spread = (Math.random() - 0.5) * 140
+        const hy = waveY(x, t, H) + spread
+        return {
+          x, y: hy, hx: x, hy,
+          vx: 0, vy: 0,
+          r: Math.random() * 5 + 1.5,
+          color: COLORS[Math.floor(Math.random() * COLORS.length)],
+          alpha: Math.random() * 0.5 + 0.3,
+          spread,
+          speed: Math.random() * 0.4 + 0.15,
+          phase: Math.random() * Math.PI * 2,
+        }
+      })
+    }
+
+    let rafId
+    function loop(ts) {
+      const t = ts * 0.001
+      const W = container.offsetWidth
+      const H = container.offsetHeight
+      const mouse = mouseRef.current
+
+      ctx.clearRect(0, 0, W, H)
+
+      for (const p of particlesRef.current) {
+        p.hy = waveY(p.hx, t * p.speed + p.phase, H) + p.spread
+
+        const dx = mouse.x - p.x
+        const dy = mouse.y - p.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        if (dist < 90 && dist > 0) {
+          const force = (90 - dist) / 90
+          p.vx -= (dx / dist) * force * 3.5
+          p.vy -= (dy / dist) * force * 3.5
+        }
+
+        p.vx += (p.hx - p.x) * 0.04
+        p.vy += (p.hy - p.y) * 0.04
+        p.vx *= 0.82
+        p.vy *= 0.82
+        p.x += p.vx
+        p.y += p.vy
+
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
+        ctx.fillStyle = p.color
+        ctx.globalAlpha = p.alpha
+        ctx.fill()
+      }
+      ctx.globalAlpha = 1
+      rafId = requestAnimationFrame(loop)
+    }
+
+    const onMouseMove = (e) => {
+      const rect = container.getBoundingClientRect()
+      mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
+    }
+    const onMouseLeave = () => {
+      mouseRef.current = { x: -9999, y: -9999 }
+    }
+
+    const ro = new ResizeObserver(init)
+    ro.observe(container)
+    container.addEventListener('mousemove', onMouseMove)
+    container.addEventListener('mouseleave', onMouseLeave)
+
+    init()
+    rafId = requestAnimationFrame(loop)
+
+    return () => {
+      cancelAnimationFrame(rafId)
+      ro.disconnect()
+      container.removeEventListener('mousemove', onMouseMove)
+      container.removeEventListener('mouseleave', onMouseLeave)
+    }
+  }, [])
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100vh',
+        background: '#ffffff',
+        overflow: 'hidden',
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute',
+          top: 0, left: 0,
+          width: '100%',
+          height: '100%',
+        }}
+      />
+
+      {/* Centered text */}
+      <div style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        textAlign: 'center',
+        zIndex: 2,
+        pointerEvents: 'none',
+      }}>
+        <div style={{
+          fontSize: 'clamp(64px, 10vw, 100px)',
+          fontWeight: '400',
+          letterSpacing: '-0.03em',
+          color: '#1a1a1a',
+          lineHeight: 1,
+          marginBottom: '18px',
+          fontFamily: "'Georgia', 'Times New Roman', serif",
+        }}>
+          resonance
+        </div>
+        <div style={{
+          fontSize: 'clamp(14px, 2vw, 17px)',
+          color: '#888',
+          letterSpacing: '0.04em',
+          fontStyle: 'italic',
+          fontFamily: "'Georgia', 'Times New Roman', serif",
+        }}>
+          Stay effortlessly informed in an increasingly noisy world
+        </div>
+      </div>
+
+      {/* Bottom-right CTA */}
+      <a
+        href="/auth"
+        style={{
+          position: 'absolute',
+          bottom: '36px',
+          right: '48px',
+          zIndex: 2,
+          fontFamily: 'sans-serif',
+          fontSize: '13px',
+          letterSpacing: '0.06em',
+          color: '#1a1a1a',
+          border: '1px solid #1a1a1a',
+          padding: '10px 24px',
+          textDecoration: 'none',
+          background: 'transparent',
+          transition: 'background 0.2s, color 0.2s',
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.background = '#1a1a1a'
+          e.currentTarget.style.color = '#fff'
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.background = 'transparent'
+          e.currentTarget.style.color = '#1a1a1a'
+        }}
+      >
+        get started →
+      </a>
+
+      {/* Scroll hint */}
+      <div style={{
+        position: 'absolute',
+        bottom: '36px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        fontSize: '12px',
+        fontFamily: 'sans-serif',
+        color: '#bbb',
+        letterSpacing: '0.06em',
+        zIndex: 2,
+      }}>
+        scroll to see how it works ↓
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   const [typed, setTyped] = useState('')
   const fullText = 'i follow NVIDIA and Jensen Huang closely. really into formula 1 racing and the business side of motorsport. also keeping up with what\'s happening at OpenAI and Anthropic.'
@@ -58,7 +270,8 @@ export default function Home() {
       position: 'fixed',
       top: 0, left: 0, right: 0,
       zIndex: 100,
-      backgroundColor: '#f2f2f2',
+      backgroundColor: 'rgba(255,255,255,0.85)',
+      backdropFilter: 'blur(8px)',
       borderBottom: '1px solid #e8e6e0',
     },
     navBrand: {
@@ -91,13 +304,6 @@ export default function Home() {
       letterSpacing: '0.1em',
       marginBottom: '48px',
     },
-    h1: {
-      fontSize: 'clamp(48px, 7vw, 84px)',
-      fontWeight: '400',
-      lineHeight: '1.05',
-      letterSpacing: '-0.02em',
-      marginBottom: '32px',
-    },
     body: {
       fontSize: '16px',
       fontFamily: 'sans-serif',
@@ -127,63 +333,10 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero */}
-      <section style={{ ...s.section, paddingTop: '200px', paddingBottom: '160px' }}>
-        <div style={{
-          fontSize: '11px',
-          fontFamily: 'sans-serif',
-          color: '#dedede',
-          letterSpacing: '0.1em',
-          marginBottom: '40px',
-        }}>
-          Your morning briefing
-        </div>
-        <h1 style={s.h1}>
-          News that<br />resonates.
-        </h1>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <input
-            type="email"
-            placeholder="your@email.com"
-            style={{
-              border: 'none',
-              borderBottom: '1px solid #aaa',
-              background: 'transparent',
-              padding: '10px 0',
-              fontSize: '15px',
-              fontFamily: 'sans-serif',
-              width: '240px',
-              outline: 'none',
-              color: '#1a1a1a',
-            }}
-          />
-          <button style={{
-            background: 'transparent',
-            color: '#1a1a1a',
-            border: '1px solid #1a1a1a',
-            padding: '10px 24px',
-            fontSize: '13px',
-            fontFamily: 'sans-serif',
-            letterSpacing: '0.04em',
-            cursor: 'pointer',
-          }}>
-            join waitlist
-          </button>
-        </div>
+      {/* Hero — full viewport particle wave */}
+      <ParticleHero />
 
-        {/* Scroll hint */}
-        <div style={{
-          marginTop: '80px',
-          fontSize: '12px',
-          fontFamily: 'sans-serif',
-          color: '#bbb',
-          letterSpacing: '0.06em',
-        }}>
-          Scroll to see how it works ↓
-        </div>
-      </section>
-
-      {/* ── HOW IT WORKS ── */}
+      {/* HOW IT WORKS */}
       <div style={s.divider} id="how" />
 
       {/* Step 01 */}
@@ -209,7 +362,6 @@ export default function Home() {
           </p>
         </FadeIn>
 
-        {/* Onboarding mockup */}
         <FadeIn delay={0.3}>
           <div style={s.card}>
             <div style={{
@@ -285,7 +437,6 @@ export default function Home() {
           </p>
         </FadeIn>
 
-        {/* Sources → articles visual */}
         <FadeIn delay={0.3}>
           <div style={s.card}>
             <div style={{
@@ -303,8 +454,8 @@ export default function Home() {
               gap: '8px',
               marginBottom: '28px',
             }}>
-              {['guardian', 'techcrunch', 'bbc', 'axios', 'the verge', 'ars technica', 'npr', 'al jazeera', 'eater', 'espn'].map(s => (
-                <span key={s} style={{
+              {['guardian', 'techcrunch', 'bbc', 'axios', 'the verge', 'ars technica', 'npr', 'al jazeera', 'eater', 'espn'].map(src => (
+                <span key={src} style={{
                   fontSize: '11px',
                   fontFamily: 'sans-serif',
                   color: '#666',
@@ -314,7 +465,7 @@ export default function Home() {
                   borderRadius: '2px',
                   letterSpacing: '0.04em',
                 }}>
-                  {s}
+                  {src}
                 </span>
               ))}
             </div>
@@ -355,7 +506,6 @@ export default function Home() {
           </p>
         </FadeIn>
 
-        {/* Briefing mockup */}
         <FadeIn delay={0.3}>
           <div style={s.card}>
             <div style={{
@@ -502,71 +652,3 @@ export default function Home() {
     </main>
   )
 }
-
-/*
-import Image from "next/image";
-
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
-}
-*/

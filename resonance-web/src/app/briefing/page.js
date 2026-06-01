@@ -3,17 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false)
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768)
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
-  return isMobile
-}
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 const POSITIONS = [
@@ -30,6 +19,17 @@ const SCORE_LABELS = {
   3: 'pretty good',
   4: 'very relevant',
   5: 'exactly right',
+}
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+  return isMobile
 }
 
 function BackgroundDots() {
@@ -131,71 +131,6 @@ function FloatingParticles() {
   )
 }
 
-function MobileArticleCard({ article, isExpanded, onTap }) {
-  return (
-    <div
-      onClick={() => onTap(isExpanded ? null : article.id)}
-      style={{
-        padding: '20px 0',
-        borderBottom: '1px solid #e8e6e0',
-        cursor: 'pointer',
-        position: 'relative',
-        zIndex: 5,
-      }}
-    >
-      <div style={{
-        fontSize: '10px',
-        fontFamily: 'sans-serif',
-        color: '#aaa',
-        letterSpacing: '0.1em',
-        textTransform: 'uppercase',
-        marginBottom: '6px',
-      }}>
-        {article.source}
-      </div>
-      <div style={{
-        fontSize: '17px',
-        lineHeight: '1.4',
-        color: '#1a1a1a',
-        fontFamily: 'Georgia, serif',
-      }}>
-        {article.title}
-      </div>
-      {isExpanded && (
-        <div style={{ animation: 'fadeIn 0.25s ease' }}>
-          <div style={{
-            fontSize: '14px',
-            fontFamily: 'sans-serif',
-            color: '#666',
-            lineHeight: '1.65',
-            marginTop: '12px',
-            marginBottom: '16px',
-          }}>
-            {article.summary || 'summary coming soon.'}
-          </div>
-          <a
-            href={article.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={e => e.stopPropagation()}
-            style={{
-              fontSize: '12px',
-              fontFamily: 'sans-serif',
-              color: '#999',
-              letterSpacing: '0.06em',
-              textDecoration: 'none',
-              borderBottom: '1px solid #ddd',
-              paddingBottom: '2px',
-            }}
-          >
-            read full article →
-          </a>
-        </div>
-      )}
-    </div>
-  )
-}
-
 function ArticleCard({ article, onHover, isExpanded }) {
   return (
     <div
@@ -268,6 +203,95 @@ function ArticleCard({ article, onHover, isExpanded }) {
   )
 }
 
+function MobileArticleCard({ article, index }) {
+  const [expanded, setExpanded] = useState(false)
+
+  const tagLabel =
+    index === 4 ? 'the world today' :
+    index >= 3  ? 'something to learn' :
+    'your stories'
+
+  return (
+    <div
+      onClick={() => setExpanded(e => !e)}
+      style={{
+        borderBottom: '1px solid #e8e6e0',
+        padding: '20px 0',
+        cursor: 'pointer',
+      }}
+    >
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        gap: '12px',
+      }}>
+        <div style={{ flex: 1 }}>
+          <div style={{
+            fontSize: '10px',
+            fontFamily: 'sans-serif',
+            color: '#bbb',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            marginBottom: '6px',
+          }}>
+            {tagLabel} · {article.source}
+          </div>
+          <div style={{
+            fontSize: '15px',
+            lineHeight: '1.4',
+            color: '#1a1a1a',
+            fontFamily: 'Georgia, serif',
+          }}>
+            {article.title}
+          </div>
+        </div>
+        <div style={{
+          fontSize: '16px',
+          color: '#bbb',
+          flexShrink: 0,
+          marginTop: '2px',
+          transition: 'transform 0.2s ease',
+          transform: expanded ? 'rotate(45deg)' : 'rotate(0deg)',
+        }}>
+          +
+        </div>
+      </div>
+
+      {expanded && (
+        <div style={{ marginTop: '14px', animation: 'fadeIn 0.2s ease' }}>
+          <p style={{
+            fontSize: '13px',
+            fontFamily: 'sans-serif',
+            color: '#666',
+            lineHeight: '1.7',
+            marginBottom: '12px',
+          }}>
+            {article.summary || 'summary coming soon.'}
+          </p>
+          <a
+            href={article.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            style={{
+              fontSize: '11px',
+              fontFamily: 'sans-serif',
+              color: '#999',
+              letterSpacing: '0.06em',
+              textDecoration: 'none',
+              borderBottom: '1px solid #ddd',
+              paddingBottom: '2px',
+            }}
+          >
+            read full article →
+          </a>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function FeedbackSection({ userId }) {
   const [score, setScore] = useState(3)
   const [text, setText] = useState('')
@@ -293,7 +317,7 @@ function FeedbackSection({ userId }) {
       <section style={{
         maxWidth: '520px',
         margin: '0 auto',
-        padding: '80px 48px',
+        padding: '80px 24px',
         textAlign: 'center',
       }}>
         <div style={{ fontSize: '13px', fontFamily: 'sans-serif', color: '#999', letterSpacing: '0.06em' }}>
@@ -307,7 +331,7 @@ function FeedbackSection({ userId }) {
     <section style={{
       maxWidth: '520px',
       margin: '0 auto',
-      padding: '64px 48px 80px',
+      padding: '64px 24px 80px',
     }}>
       <div style={{
         fontSize: '11px',
@@ -340,14 +364,14 @@ function FeedbackSection({ userId }) {
       </p>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
-
-        {/* Relevance slider */}
         <div>
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             marginBottom: '14px',
+            flexWrap: 'wrap',
+            gap: '6px',
           }}>
             <label style={{ fontSize: '12px', fontFamily: 'sans-serif', color: '#666', letterSpacing: '0.04em' }}>
               How relevant were the articles?
@@ -373,15 +397,10 @@ function FeedbackSection({ userId }) {
             color: '#ccc',
             letterSpacing: '0.04em',
           }}>
-            <span>1</span>
-            <span>2</span>
-            <span>3</span>
-            <span>4</span>
-            <span>5</span>
+            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
           </div>
         </div>
 
-        {/* Text feedback */}
         <div>
           <label style={{
             display: 'block',
@@ -442,7 +461,6 @@ export default function BriefingPage() {
   const [userName, setUserName] = useState('')
   const [userId, setUserId] = useState('')
   const [hoveredCard, setHoveredCard] = useState(null)
-  const [selectedCard, setSelectedCard] = useState(null)
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -485,109 +503,116 @@ export default function BriefingPage() {
     weekday: 'long', month: 'long', day: 'numeric'
   }).toLowerCase()
 
-  if (isMobile) return (
-    <>
-      <main style={{
-        backgroundColor: '#f5f4f0',
-        minHeight: '100vh',
-        position: 'relative',
-        fontFamily: 'Georgia, serif',
-        color: '#1a1a1a',
-        overflowX: 'hidden',
-      }}>
-        {/* Nav */}
-        <nav style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          padding: '24px 24px 0',
-          position: 'relative',
-          zIndex: 10,
+  // ── MOBILE LAYOUT ──
+  if (isMobile) {
+    return (
+      <>
+        <main style={{
+          backgroundColor: '#f5f4f0',
+          minHeight: '100vh',
+          fontFamily: 'Georgia, serif',
+          color: '#1a1a1a',
         }}>
-          <span style={{ fontSize: '13px', letterSpacing: '0.06em' }}>resonance</span>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '13px', fontFamily: 'Georgia, serif', color: '#1a1a1a' }}>{greeting}</div>
-            <div style={{ fontSize: '10px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em', marginTop: '2px' }}>{today}</div>
+          <nav style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '20px 24px',
+            borderBottom: '1px solid #e8e6e0',
+          }}>
+            <span style={{ fontSize: '14px', letterSpacing: '0.06em' }}>resonance</span>
+            <button
+              onClick={() => { localStorage.removeItem('user_id'); localStorage.removeItem('user_name'); router.push('/') }}
+              style={{ background: 'none', border: 'none', fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', cursor: 'pointer', letterSpacing: '0.06em' }}
+            >
+              sign out
+            </button>
+          </nav>
+
+          <div style={{ padding: '32px 24px 8px' }}>
+            <div style={{ fontSize: '22px', fontWeight: '400', letterSpacing: '-0.01em', marginBottom: '6px' }}>
+              {greeting}
+            </div>
+            <div style={{ fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em' }}>
+              {today}
+            </div>
           </div>
-          <button
-            onClick={() => { localStorage.removeItem('user_id'); localStorage.removeItem('user_name'); router.push('/') }}
-            style={{ background: 'none', border: 'none', fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', cursor: 'pointer', letterSpacing: '0.06em' }}
-          >
-            sign out
-          </button>
-        </nav>
 
-        {/* Wave */}
-        <div style={{ position: 'relative', height: '120px', overflow: 'hidden', marginTop: '16px' }}>
-          <BackgroundDots />
-          <svg
-            style={{ position: 'absolute', top: '50%', left: 0, width: '100%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-            height="120"
-            viewBox="0 0 390 120"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0,60 C65,15 130,105 195,60 C260,15 325,105 390,60"
-              fill="none" stroke="#c8c4bc" strokeWidth="1.5"
-              style={{ animation: 'wave 4s ease-in-out infinite alternate' }}
-            />
-            <path
-              d="M0,65 C55,20 120,110 195,65 C270,20 335,110 390,65"
-              fill="none" stroke="#c8c4bc" strokeWidth="0.8" opacity="0.5"
-              style={{ animation: 'wave 5s ease-in-out infinite alternate-reverse' }}
-            />
-          </svg>
-        </div>
+          {/* Wave */}
+          <div style={{ position: 'relative', height: '80px', overflow: 'hidden', margin: '16px 0' }}>
+            <svg
+              style={{ position: 'absolute', top: '50%', left: 0, width: '100%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+              height="80"
+              viewBox="0 0 390 80"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="M0,40 C65,10 130,70 195,40 C260,10 325,70 390,40"
+                fill="none" stroke="#c8c4bc" strokeWidth="1.5"
+                style={{ animation: 'waveMobile 4s ease-in-out infinite alternate' }}
+              />
+              <path
+                d="M0,44 C55,14 120,74 195,44 C270,14 335,74 390,44"
+                fill="none" stroke="#c8c4bc" strokeWidth="0.8" opacity="0.5"
+                style={{ animation: 'waveMobile 5s ease-in-out infinite alternate-reverse' }}
+              />
+            </svg>
+          </div>
 
-        {/* Articles */}
-        <div style={{ padding: '0 24px 40px', position: 'relative', zIndex: 5 }}>
-          {loading && (
-            <div style={{ textAlign: 'center', padding: '40px 0', fontSize: '13px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em' }}>
-              preparing your briefing...
+          <div style={{ padding: '0 24px 8px' }}>
+            <div style={{ fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              your briefing
+            </div>
+          </div>
+
+          <div style={{ padding: '0 24px' }}>
+            {loading && (
+              <div style={{ padding: '40px 0', fontSize: '13px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em' }}>
+                preparing your briefing...
+              </div>
+            )}
+            {error && (
+              <div style={{ padding: '40px 0', fontSize: '13px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em', lineHeight: '1.7' }}>
+                your briefing for today is being prepared.<br />check back soon.
+              </div>
+            )}
+            {articles.map((article, i) => (
+              <MobileArticleCard key={article.id} article={article} index={i} />
+            ))}
+          </div>
+
+          {!loading && !error && articles.length > 0 && (
+            <div style={{ padding: '24px 24px 0', textAlign: 'right' }}>
+              <a href="#feedback" style={{ fontSize: '12px', fontFamily: 'sans-serif', color: '#999', letterSpacing: '0.06em', textDecoration: 'none' }}>
+                share feedback ↓
+              </a>
             </div>
           )}
-          {error && (
-            <div style={{ textAlign: 'center', padding: '40px 0', fontSize: '13px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em', lineHeight: '1.7' }}>
-              your briefing for today is being prepared.<br />check back soon.
-            </div>
-          )}
-          {articles.map(article => (
-            <MobileArticleCard
-              key={article.id}
-              article={article}
-              isExpanded={selectedCard === article.id}
-              onTap={setSelectedCard}
-            />
-          ))}
+        </main>
+
+        <div id="feedback" style={{ backgroundColor: '#f5f4f0', paddingTop: '40px' }}>
+          <FeedbackSection userId={userId} />
         </div>
 
-        {/* Bottom bar */}
-        <div style={{
-          padding: '16px 24px',
-          borderTop: '1px solid #e8e6e0',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <div style={{ fontSize: '10px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.08em' }}>
-            your stories · learn · world
-          </div>
-          <a href="#feedback-mobile" style={{ fontSize: '11px', fontFamily: 'sans-serif', color: '#666', letterSpacing: '0.06em', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#999', animation: 'pulse 2s ease-in-out infinite', flexShrink: 0 }} />
-            feedback ↓
-          </a>
-        </div>
-      </main>
+        <style>{`
+          @keyframes waveMobile {
+            from { d: path("M0,40 C65,10 130,70 195,40 C260,10 325,70 390,40"); }
+            to   { d: path("M0,40 C65,70 130,10 195,40 C260,70 325,10 390,40"); }
+          }
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+          html { scroll-behavior: smooth; }
+        `}</style>
+      </>
+    )
+  }
 
-      <div id="feedback-mobile" style={{ backgroundColor: '#f5f4f0', paddingTop: '40px' }}>
-        <FeedbackSection userId={userId} />
-      </div>
-    </>
-  )
-
+  // ── DESKTOP LAYOUT ──
   return (
     <>
-      {/* ── BRIEFING SECTION ── */}
       <main style={{
         backgroundColor: '#f5f4f0',
         height: '100vh',
@@ -692,7 +717,6 @@ export default function BriefingPage() {
         </div>
       </main>
 
-      {/* ── FEEDBACK SECTION ── */}
       <div id="feedback" style={{
         backgroundColor: '#f5f4f0',
         paddingTop: '60px',
@@ -717,10 +741,6 @@ export default function BriefingPage() {
           20%  { opacity: 1; }
           80%  { opacity: 1; }
           100% { transform: translateY(100px); opacity: 0; }
-        }
-        @keyframes wave {
-          from { d: path("M0,60 C65,15 130,105 195,60 C260,15 325,105 390,60"); }
-          to   { d: path("M0,60 C65,105 130,15 195,60 C260,105 325,15 390,60"); }
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }

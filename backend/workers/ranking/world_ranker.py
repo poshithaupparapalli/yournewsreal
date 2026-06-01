@@ -252,3 +252,76 @@ def run():
 
 if __name__ == "__main__":
     run()
+
+def run_for_user(user_id: str):
+    """
+    On-demand version of run() for new users signing up mid-day.
+    Reuses already-ranked world candidates (no LLM re-call needed)
+    and assigns world articles to just this user's briefing.
+    """
+    print("\n" + "=" * 55)
+    print(f"WORLD RANKER — on-demand for user {user_id[:8]}...")
+    print("=" * 55 + "\n")
+
+    # Fetch already-ranked candidates for today (ranked by daily pipeline or previous on-demand run)
+    today = datetime.now(timezone.utc).date().isoformat()
+    result = (
+        supabase.table("world_candidates")
+        .select("id, guardian_id, title, summary, date, llm_rank")
+        .eq("date", today)
+        .order("llm_rank", desc=False)
+        .execute()
+    )
+    candidates = result.data
+
+    if not candidates:
+        print("No world candidates found for today — skipping world articles.")
+        return
+
+    # Enrich with article_id and cluster_id
+    enriched = []
+    for c in candidates:
+        article = supabase.table("articles").select(
+            "id, cluster_id"
+        ).eq("guardian_id", c["guardian_id"]).execute()
+
+        if article.data:
+            c["article_id"] = article.data[0]["id"]
+            c["cluster_id"] = article.data[0]["cluster_id"]
+        else:
+            c["article_id"] = None
+            c["cluster_id"] = None
+
+        enriched.append(c)
+
+    # If candidates haven't been LLM-ranked yet (llm_rank is null), rank now
+    unranked = [c for c in enriched if c.get("llm_rank") is None]
+    if unranked:
+        print("Candidates not yet ranked — running LLM ranking now...")
+        ranked_ids = rank_with_llm(enriched)
+        save_llm_ranks(ranked_ids)
+        id_to_candidate = {c["guardian_id"]: c for c in enriched}
+        ranked_candidates = [
+            id_to_candidate[gid] for gid in ranked_ids
+            if gid in id_to_candidate
+        ]
+    else:
+        ranked_candidates = sorted(enriched, key=lambda c: c.get("llm_rank") or 999)
+
+    # Fetch just this user's briefing
+    briefing_result = (
+        supabase.table("briefings")
+        .select("id, user_id, interest_article_ids, learning_article_ids")
+        .eq("user_id", user_id)
+        .eq("date", today)
+        .execute()
+    )
+
+    if not briefing_result.data:
+        print(f"No briefing found for user {user_id[:8]}... — skipping.")
+        return
+
+    updated = assign_world_articles(briefing_result.data, ranked_candidates)
+    print(f"\n{'=' * 55}")
+    print(f"DONE — updated {updated} briefing")
+    print(f"{'=' * 55}\n")

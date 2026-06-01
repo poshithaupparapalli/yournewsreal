@@ -1,9 +1,9 @@
 """
 scraper_pipeline.py
 
-Runs every 30 minutes to collect fresh articles from all sources.
+Runs every 2 hours to collect fresh articles from all sources.
 Only scrapes — no embedding, ranking, or summarizing.
-Those run once daily in pipeline.py at 7am.
+Those run once daily in pipeline.py at 7am UTC.
 
 Run from backend/:
   python workers/scraper_pipeline.py
@@ -35,7 +35,6 @@ def run():
     print(f"SCRAPER PIPELINE — {start.strftime('%Y-%m-%d %H:%M UTC')}")
     print("=" * 55)
 
-    from workers.scrapers import Guardian
     from workers.scrapers import verge
     from workers.scrapers import ars_technica
     from workers.scrapers import axios
@@ -44,16 +43,17 @@ def run():
     from workers.scrapers import espn
     from workers.scrapers import npr
     from workers.scrapers import techcrunch
+    from workers.scrapers import aljazeera
 
-    run_step("Guardian",    Guardian)
-    run_step("The Verge",   verge)
-    run_step("Ars Technica", ars_technica)
-    run_step("Axios",       axios)
-    run_step("BBC",         bbc)
-    run_step("Eater",       eater)
-    run_step("ESPN",        espn)
-    run_step("NPR",         npr)
-    run_step("TechCrunch",  techcrunch)
+    run_step("BBC",               bbc)
+    run_step("The Verge",         verge)
+    run_step("Ars Technica",      ars_technica)
+    run_step("Axios",             axios)
+    run_step("Eater",             eater)
+    run_step("ESPN",              espn)
+    run_step("NPR",               npr)
+    run_step("TechCrunch",        techcrunch)
+    run_step("Al Jazeera",        aljazeera)
 
     elapsed = (datetime.now(timezone.utc) - start).seconds
     print(f"\n{'=' * 55}")
