@@ -3,6 +3,17 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+  return isMobile
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 const POSITIONS = [
@@ -116,6 +127,71 @@ function FloatingParticles() {
           }}
         />
       ))}
+    </div>
+  )
+}
+
+function MobileArticleCard({ article, isExpanded, onTap }) {
+  return (
+    <div
+      onClick={() => onTap(isExpanded ? null : article.id)}
+      style={{
+        padding: '20px 0',
+        borderBottom: '1px solid #e8e6e0',
+        cursor: 'pointer',
+        position: 'relative',
+        zIndex: 5,
+      }}
+    >
+      <div style={{
+        fontSize: '10px',
+        fontFamily: 'sans-serif',
+        color: '#aaa',
+        letterSpacing: '0.1em',
+        textTransform: 'uppercase',
+        marginBottom: '6px',
+      }}>
+        {article.source}
+      </div>
+      <div style={{
+        fontSize: '17px',
+        lineHeight: '1.4',
+        color: '#1a1a1a',
+        fontFamily: 'Georgia, serif',
+      }}>
+        {article.title}
+      </div>
+      {isExpanded && (
+        <div style={{ animation: 'fadeIn 0.25s ease' }}>
+          <div style={{
+            fontSize: '14px',
+            fontFamily: 'sans-serif',
+            color: '#666',
+            lineHeight: '1.65',
+            marginTop: '12px',
+            marginBottom: '16px',
+          }}>
+            {article.summary || 'summary coming soon.'}
+          </div>
+          <a
+            href={article.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            style={{
+              fontSize: '12px',
+              fontFamily: 'sans-serif',
+              color: '#999',
+              letterSpacing: '0.06em',
+              textDecoration: 'none',
+              borderBottom: '1px solid #ddd',
+              paddingBottom: '2px',
+            }}
+          >
+            read full article →
+          </a>
+        </div>
+      )}
     </div>
   )
 }
@@ -362,9 +438,11 @@ function FeedbackSection({ userId }) {
 
 export default function BriefingPage() {
   const router = useRouter()
+  const isMobile = useIsMobile()
   const [userName, setUserName] = useState('')
   const [userId, setUserId] = useState('')
   const [hoveredCard, setHoveredCard] = useState(null)
+  const [selectedCard, setSelectedCard] = useState(null)
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -406,6 +484,106 @@ export default function BriefingPage() {
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric'
   }).toLowerCase()
+
+  if (isMobile) return (
+    <>
+      <main style={{
+        backgroundColor: '#f5f4f0',
+        minHeight: '100vh',
+        position: 'relative',
+        fontFamily: 'Georgia, serif',
+        color: '#1a1a1a',
+        overflowX: 'hidden',
+      }}>
+        {/* Nav */}
+        <nav style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          padding: '24px 24px 0',
+          position: 'relative',
+          zIndex: 10,
+        }}>
+          <span style={{ fontSize: '13px', letterSpacing: '0.06em' }}>resonance</span>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '13px', fontFamily: 'Georgia, serif', color: '#1a1a1a' }}>{greeting}</div>
+            <div style={{ fontSize: '10px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em', marginTop: '2px' }}>{today}</div>
+          </div>
+          <button
+            onClick={() => { localStorage.removeItem('user_id'); localStorage.removeItem('user_name'); router.push('/') }}
+            style={{ background: 'none', border: 'none', fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', cursor: 'pointer', letterSpacing: '0.06em' }}
+          >
+            sign out
+          </button>
+        </nav>
+
+        {/* Wave */}
+        <div style={{ position: 'relative', height: '120px', overflow: 'hidden', marginTop: '16px' }}>
+          <BackgroundDots />
+          <svg
+            style={{ position: 'absolute', top: '50%', left: 0, width: '100%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+            height="120"
+            viewBox="0 0 390 120"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M0,60 C65,15 130,105 195,60 C260,15 325,105 390,60"
+              fill="none" stroke="#c8c4bc" strokeWidth="1.5"
+              style={{ animation: 'wave 4s ease-in-out infinite alternate' }}
+            />
+            <path
+              d="M0,65 C55,20 120,110 195,65 C270,20 335,110 390,65"
+              fill="none" stroke="#c8c4bc" strokeWidth="0.8" opacity="0.5"
+              style={{ animation: 'wave 5s ease-in-out infinite alternate-reverse' }}
+            />
+          </svg>
+        </div>
+
+        {/* Articles */}
+        <div style={{ padding: '0 24px 40px', position: 'relative', zIndex: 5 }}>
+          {loading && (
+            <div style={{ textAlign: 'center', padding: '40px 0', fontSize: '13px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em' }}>
+              preparing your briefing...
+            </div>
+          )}
+          {error && (
+            <div style={{ textAlign: 'center', padding: '40px 0', fontSize: '13px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em', lineHeight: '1.7' }}>
+              your briefing for today is being prepared.<br />check back soon.
+            </div>
+          )}
+          {articles.map(article => (
+            <MobileArticleCard
+              key={article.id}
+              article={article}
+              isExpanded={selectedCard === article.id}
+              onTap={setSelectedCard}
+            />
+          ))}
+        </div>
+
+        {/* Bottom bar */}
+        <div style={{
+          padding: '16px 24px',
+          borderTop: '1px solid #e8e6e0',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+          <div style={{ fontSize: '10px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.08em' }}>
+            your stories · learn · world
+          </div>
+          <a href="#feedback-mobile" style={{ fontSize: '11px', fontFamily: 'sans-serif', color: '#666', letterSpacing: '0.06em', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#999', animation: 'pulse 2s ease-in-out infinite', flexShrink: 0 }} />
+            feedback ↓
+          </a>
+        </div>
+      </main>
+
+      <div id="feedback-mobile" style={{ backgroundColor: '#f5f4f0', paddingTop: '40px' }}>
+        <FeedbackSection userId={userId} />
+      </div>
+    </>
+  )
 
   return (
     <>
@@ -539,6 +717,10 @@ export default function BriefingPage() {
           20%  { opacity: 1; }
           80%  { opacity: 1; }
           100% { transform: translateY(100px); opacity: 0; }
+        }
+        @keyframes wave {
+          from { d: path("M0,60 C65,15 130,105 195,60 C260,15 325,105 390,60"); }
+          to   { d: path("M0,60 C65,105 130,15 195,60 C260,105 325,15 390,60"); }
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
