@@ -99,38 +99,6 @@ function Wave() {
   )
 }
 
-function FloatingParticles() {
-  const particles = [
-    { left: '20%', delay: '0s',    duration: '3.2s' },
-    { left: '35%', delay: '0.6s',  duration: '2.8s' },
-    { left: '50%', delay: '1.1s',  duration: '3.5s' },
-    { left: '65%', delay: '0.3s',  duration: '2.6s' },
-    { left: '80%', delay: '0.9s',  duration: '3.1s' },
-    { left: '28%', delay: '1.4s',  duration: '2.9s' },
-    { left: '72%', delay: '0.5s',  duration: '3.4s' },
-  ]
-  return (
-    <div style={{ position: 'relative', height: '100px', overflow: 'hidden', background: '#f5f4f0' }}>
-      {particles.map((p, i) => (
-        <div
-          key={i}
-          style={{
-            position: 'absolute',
-            top: '-6px',
-            left: p.left,
-            width: '3px',
-            height: '3px',
-            borderRadius: '50%',
-            background: '#c8c4bc',
-            animation: `floatDown ${p.duration} ease-in-out infinite`,
-            animationDelay: p.delay,
-          }}
-        />
-      ))}
-    </div>
-  )
-}
-
 function ArticleCard({ article, onHover, isExpanded }) {
   return (
     <div
@@ -495,6 +463,34 @@ export default function BriefingPage() {
       })
   }, [])
 
+  // JS-driven wave animation for mobile (works on Safari/iOS unlike CSS d: path())
+  useEffect(() => {
+    if (!isMobile) return
+    const p1 = document.getElementById('wave-path-1')
+    const p2 = document.getElementById('wave-path-2')
+    if (!p1 || !p2) return
+
+    let raf
+    function draw(ts) {
+      const t = ts * 0.001
+      const W = 800
+
+      const y1 = (x) => 40 + Math.sin(x * 0.012 + t) * 18 + Math.sin(x * 0.007 - t * 1.3) * 10
+      const y2 = (x) => 40 + Math.sin(x * 0.012 + t * 0.9) * 14 + Math.sin(x * 0.007 + t * 1.1) * 8
+
+      const pts = [0, 100, 200, 300, 400, 500, 600, 700, 800]
+      const toPath = (fn) =>
+        pts.map((x, i) => `${i === 0 ? 'M' : 'L'}${x},${fn(x).toFixed(1)}`).join(' ')
+
+      p1.setAttribute('d', toPath(y1))
+      p2.setAttribute('d', toPath(y2))
+      raf = requestAnimationFrame(draw)
+    }
+
+    raf = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(raf)
+  }, [isMobile])
+
   const greeting = userName
     ? `good morning, ${userName.split(' ')[0].toLowerCase()}.`
     : 'good morning.'
@@ -538,24 +534,15 @@ export default function BriefingPage() {
             </div>
           </div>
 
-          {/* Wave */}
+          {/* JS-animated wave — works on all mobile browsers */}
           <div style={{ position: 'relative', height: '80px', overflow: 'hidden', margin: '16px 0' }}>
             <svg
-              style={{ position: 'absolute', top: '50%', left: 0, width: '100%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-              height="80"
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
               viewBox="0 0 800 80"
               preserveAspectRatio="none"
             >
-              <path
-                d="M0,40 C133,10 267,70 400,40 C533,10 667,70 800,40"
-                fill="none" stroke="#c8c4bc" strokeWidth="1.5"
-                style={{ animation: 'waveMorph 4s ease-in-out infinite alternate' }}
-              />
-              <path
-                d="M0,44 C110,14 290,74 400,44 C510,14 690,74 800,44"
-                fill="none" stroke="#c8c4bc" strokeWidth="0.8" opacity="0.5"
-                style={{ animation: 'waveMorph 5s ease-in-out infinite alternate-reverse' }}
-              />
+              <path id="wave-path-1" fill="none" stroke="#c8c4bc" strokeWidth="1.5" />
+              <path id="wave-path-2" fill="none" stroke="#c8c4bc" strokeWidth="0.8" opacity="0.5" />
             </svg>
           </div>
 
@@ -595,10 +582,6 @@ export default function BriefingPage() {
         </div>
 
         <style>{`
-          @keyframes waveSlide {
-            from { d: path("M0,40 C133,10 267,70 400,40 C533,10 667,70 800,40"); }
-            to   { d: path("M0,40 C133,70 267,10 400,40 C533,70 667,10 800,40"); }
-          }
           @keyframes fadeIn {
             from { opacity: 0; transform: translateY(4px); }
             to   { opacity: 1; transform: translateY(0); }
