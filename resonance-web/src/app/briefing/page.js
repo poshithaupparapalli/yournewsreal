@@ -21,6 +21,17 @@ const SCORE_LABELS = {
   5: 'exactly right',
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+  return isMobile
+}
+
 function BackgroundDots() {
   const dots = [
     { left: '8%',  top: '12%' }, { left: '92%', top: '8%'  },
@@ -85,38 +96,6 @@ function Wave() {
         }
       `}</style>
     </svg>
-  )
-}
-
-function FloatingParticles() {
-  const particles = [
-    { left: '20%', delay: '0s',    duration: '3.2s' },
-    { left: '35%', delay: '0.6s',  duration: '2.8s' },
-    { left: '50%', delay: '1.1s',  duration: '3.5s' },
-    { left: '65%', delay: '0.3s',  duration: '2.6s' },
-    { left: '80%', delay: '0.9s',  duration: '3.1s' },
-    { left: '28%', delay: '1.4s',  duration: '2.9s' },
-    { left: '72%', delay: '0.5s',  duration: '3.4s' },
-  ]
-  return (
-    <div style={{ position: 'relative', height: '100px', overflow: 'hidden', background: '#f5f4f0' }}>
-      {particles.map((p, i) => (
-        <div
-          key={i}
-          style={{
-            position: 'absolute',
-            top: '-6px',
-            left: p.left,
-            width: '3px',
-            height: '3px',
-            borderRadius: '50%',
-            background: '#c8c4bc',
-            animation: `floatDown ${p.duration} ease-in-out infinite`,
-            animationDelay: p.delay,
-          }}
-        />
-      ))}
-    </div>
   )
 }
 
@@ -192,6 +171,96 @@ function ArticleCard({ article, onHover, isExpanded }) {
   )
 }
 
+// Mobile-only card — stacked vertical list
+function MobileArticleCard({ article, index }) {
+  const [expanded, setExpanded] = useState(false)
+
+  const tagLabel =
+    index === 4 ? 'the world today' :
+    index >= 3  ? 'something to learn' :
+    'your stories'
+
+  return (
+    <div
+      onClick={() => setExpanded(e => !e)}
+      style={{
+        borderBottom: '1px solid #e8e6e0',
+        padding: '20px 0',
+        cursor: 'pointer',
+      }}
+    >
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        gap: '12px',
+      }}>
+        <div style={{ flex: 1 }}>
+          <div style={{
+            fontSize: '10px',
+            fontFamily: 'sans-serif',
+            color: '#bbb',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            marginBottom: '6px',
+          }}>
+            {tagLabel} · {article.source}
+          </div>
+          <div style={{
+            fontSize: '15px',
+            lineHeight: '1.4',
+            color: '#1a1a1a',
+            fontFamily: 'Georgia, serif',
+          }}>
+            {article.title}
+          </div>
+        </div>
+        <div style={{
+          fontSize: '16px',
+          color: '#bbb',
+          flexShrink: 0,
+          marginTop: '2px',
+          transition: 'transform 0.2s ease',
+          transform: expanded ? 'rotate(45deg)' : 'rotate(0deg)',
+        }}>
+          +
+        </div>
+      </div>
+
+      {expanded && (
+        <div style={{ marginTop: '14px', animation: 'fadeIn 0.2s ease' }}>
+          <p style={{
+            fontSize: '13px',
+            fontFamily: 'sans-serif',
+            color: '#666',
+            lineHeight: '1.7',
+            marginBottom: '12px',
+          }}>
+            {article.summary || 'summary coming soon.'}
+          </p>
+          <a
+            href={article.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            style={{
+              fontSize: '11px',
+              fontFamily: 'sans-serif',
+              color: '#999',
+              letterSpacing: '0.06em',
+              textDecoration: 'none',
+              borderBottom: '1px solid #ddd',
+              paddingBottom: '2px',
+            }}
+          >
+            read full article →
+          </a>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function FeedbackSection({ userId }) {
   const [score, setScore] = useState(3)
   const [text, setText] = useState('')
@@ -217,7 +286,7 @@ function FeedbackSection({ userId }) {
       <section style={{
         maxWidth: '520px',
         margin: '0 auto',
-        padding: '80px 48px',
+        padding: '80px 24px',
         textAlign: 'center',
       }}>
         <div style={{ fontSize: '13px', fontFamily: 'sans-serif', color: '#999', letterSpacing: '0.06em' }}>
@@ -231,7 +300,7 @@ function FeedbackSection({ userId }) {
     <section style={{
       maxWidth: '520px',
       margin: '0 auto',
-      padding: '64px 48px 80px',
+      padding: '64px 24px 80px',
     }}>
       <div style={{
         fontSize: '11px',
@@ -264,14 +333,14 @@ function FeedbackSection({ userId }) {
       </p>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
-
-        {/* Relevance slider */}
         <div>
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             marginBottom: '14px',
+            flexWrap: 'wrap',
+            gap: '6px',
           }}>
             <label style={{ fontSize: '12px', fontFamily: 'sans-serif', color: '#666', letterSpacing: '0.04em' }}>
               How relevant were the articles?
@@ -297,15 +366,10 @@ function FeedbackSection({ userId }) {
             color: '#ccc',
             letterSpacing: '0.04em',
           }}>
-            <span>1</span>
-            <span>2</span>
-            <span>3</span>
-            <span>4</span>
-            <span>5</span>
+            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
           </div>
         </div>
 
-        {/* Text feedback */}
         <div>
           <label style={{
             display: 'block',
@@ -362,6 +426,7 @@ function FeedbackSection({ userId }) {
 
 export default function BriefingPage() {
   const router = useRouter()
+  const isMobile = useIsMobile()
   const [userName, setUserName] = useState('')
   const [userId, setUserId] = useState('')
   const [hoveredCard, setHoveredCard] = useState(null)
@@ -407,9 +472,100 @@ export default function BriefingPage() {
     weekday: 'long', month: 'long', day: 'numeric'
   }).toLowerCase()
 
+  // ── MOBILE LAYOUT ──
+  if (isMobile) {
+    return (
+      <>
+        <main style={{
+          backgroundColor: '#f5f4f0',
+          minHeight: '100vh',
+          fontFamily: 'Georgia, serif',
+          color: '#1a1a1a',
+        }}>
+          {/* Mobile nav */}
+          <nav style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '20px 24px',
+            borderBottom: '1px solid #e8e6e0',
+          }}>
+            <span style={{ fontSize: '14px', letterSpacing: '0.06em' }}>resonance</span>
+            <button
+              onClick={() => { localStorage.removeItem('user_id'); localStorage.removeItem('user_name'); router.push('/') }}
+              style={{ background: 'none', border: 'none', fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', cursor: 'pointer', letterSpacing: '0.06em' }}
+            >
+              sign out
+            </button>
+          </nav>
+
+          {/* Greeting */}
+          <div style={{ padding: '32px 24px 8px' }}>
+            <div style={{ fontSize: '22px', fontWeight: '400', letterSpacing: '-0.01em', marginBottom: '6px' }}>
+              {greeting}
+            </div>
+            <div style={{ fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em' }}>
+              {today}
+            </div>
+          </div>
+
+          {/* Section label */}
+          <div style={{ padding: '24px 24px 0' }}>
+            <div style={{ fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '4px' }}>
+              your briefing
+            </div>
+          </div>
+
+          {/* Articles */}
+          <div style={{ padding: '0 24px' }}>
+            {loading && (
+              <div style={{ padding: '40px 0', fontSize: '13px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em' }}>
+                preparing your briefing...
+              </div>
+            )}
+            {error && (
+              <div style={{ padding: '40px 0', fontSize: '13px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em', lineHeight: '1.7' }}>
+                your briefing for today is being prepared.<br />check back soon.
+              </div>
+            )}
+            {articles.map((article, i) => (
+              <MobileArticleCard key={article.id} article={article} index={i} />
+            ))}
+          </div>
+
+          {/* Feedback link */}
+          {!loading && !error && articles.length > 0 && (
+            <div style={{ padding: '24px 24px 0', textAlign: 'right' }}>
+              <a
+                href="#feedback"
+                style={{ fontSize: '12px', fontFamily: 'sans-serif', color: '#999', letterSpacing: '0.06em', textDecoration: 'none' }}
+              >
+                share feedback ↓
+              </a>
+            </div>
+          )}
+        </main>
+
+        {/* Feedback */}
+        <div id="feedback" style={{ backgroundColor: '#f5f4f0', paddingTop: '40px' }}>
+          <FeedbackSection userId={userId} />
+        </div>
+
+        <style>{`
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+          html { scroll-behavior: smooth; }
+        `}</style>
+      </>
+    )
+  }
+
+  // ── DESKTOP LAYOUT (unchanged) ──
   return (
     <>
-      {/* ── BRIEFING SECTION ── */}
       <main style={{
         backgroundColor: '#f5f4f0',
         height: '100vh',
@@ -514,7 +670,6 @@ export default function BriefingPage() {
         </div>
       </main>
 
-      {/* ── FEEDBACK SECTION ── */}
       <div id="feedback" style={{
         backgroundColor: '#f5f4f0',
         paddingTop: '60px',
