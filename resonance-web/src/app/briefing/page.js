@@ -478,10 +478,18 @@ export default function BriefingPage() {
       const y1 = (x) => 40 + Math.sin(x * 0.012 + t) * 18 + Math.sin(x * 0.007 - t * 1.3) * 10
       const y2 = (x) => 40 + Math.sin(x * 0.012 + t * 0.9) * 14 + Math.sin(x * 0.007 + t * 1.1) * 8
 
-      const pts = [0, 100, 200, 300, 400, 500, 600, 700, 800]
-      const toPath = (fn) =>
-        pts.map((x, i) => `${i === 0 ? 'M' : 'L'}${x},${fn(x).toFixed(1)}`).join(' ')
-
+      const toPath = (fn) => {
+        let d = ''
+        for (let x = 0; x <= W; x += 4) {
+          d += `${x === 0 ? 'M' : 'L'}${x},${fn(x).toFixed(1)} `
+        }
+        return d
+      }
+      
+      //const pts = [0, 100, 200, 300, 400, 500, 600, 700, 800]
+      //const toPath = (fn) =>
+      //  pts.map((x, i) => `${i === 0 ? 'M' : 'L'}${x},${fn(x).toFixed(1)}`).join(' ')
+      
       p1.setAttribute('d', toPath(y1))
       p2.setAttribute('d', toPath(y2))
       raf = requestAnimationFrame(draw)
