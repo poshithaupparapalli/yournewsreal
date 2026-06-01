@@ -541,19 +541,20 @@ export default function BriefingPage() {
           {/* Wave */}
           <div style={{ position: 'relative', height: '80px', overflow: 'hidden', margin: '16px 0' }}>
             <svg
-              style={{ position: 'absolute', top: '50%', left: 0, width: '200%', transform: 'translateY(-50%)', pointerEvents: 'none', animation: 'waveSlide 6s linear infinite' }}
+              style={{ position: 'absolute', top: '50%', left: 0, width: '100%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
               height="80"
-              viewBox="0 0 780 80"
+              viewBox="0 0 800 80"
               preserveAspectRatio="none"
             >
               <path
-                d="M0,40 C65,10 130,70 195,40 C260,10 325,70 390,40 C455,10 520,70 585,40 C650,10 715,70 780,40"
+                d="M0,40 C133,10 267,70 400,40 C533,10 667,70 800,40"
                 fill="none" stroke="#c8c4bc" strokeWidth="1.5"
+                style={{ animation: 'waveMorph 4s ease-in-out infinite alternate' }}
               />
               <path
-                d="M0,44 C55,14 120,74 195,44 C270,14 335,74 390,44 C455,14 520,74 585,44 C650,14 715,74 780,44"
+                d="M0,44 C110,14 290,74 400,44 C510,14 690,74 800,44"
                 fill="none" stroke="#c8c4bc" strokeWidth="0.8" opacity="0.5"
-                style={{ animation: 'waveSlide 9s linear infinite' }}
+                style={{ animation: 'waveMorph 5s ease-in-out infinite alternate-reverse' }}
               />
             </svg>
           </div>
@@ -595,8 +596,8 @@ export default function BriefingPage() {
 
         <style>{`
           @keyframes waveSlide {
-            from { transform: translateY(-50%) translateX(0); }
-            to   { transform: translateY(-50%) translateX(-50%); }
+            from { d: path("M0,40 C133,10 267,70 400,40 C533,10 667,70 800,40"); }
+            to   { d: path("M0,40 C133,70 267,10 400,40 C533,70 667,10 800,40"); }
           }
           @keyframes fadeIn {
             from { opacity: 0; transform: translateY(4px); }
