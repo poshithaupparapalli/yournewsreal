@@ -27,7 +27,7 @@ load_dotenv()
 # ─────────────────────────────────────────────────────────────
 # CONFIG
 MIN_SCORE       = 0.05   # minimum cosine similarity to include an article
-MAX_PER_CLUSTER = 2      # max articles per cluster across the whole briefing
+MAX_PER_CLUSTER = 1      # max articles per cluster across the whole briefing
 INTEREST_SLOTS  = 3      # articles from interest_vector
 LEARNING_SLOTS  = 1      # articles from learning_vector
 # world slots handled separately by world importance module
