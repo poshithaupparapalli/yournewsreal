@@ -16,6 +16,7 @@ import requests
 import feedparser
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
+from filters import should_skip
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from database.connection import supabase
@@ -56,6 +57,8 @@ def fetch_rss_entries() -> list[dict]:
 
         if not url or not title:
             continue
+        if should_skip(title, "npr"):                                               
+            continue 
 
         # Parse publish date
         published_at = None
