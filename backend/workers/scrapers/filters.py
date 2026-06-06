@@ -2,12 +2,7 @@ TITLE_BLOCKLIST = [
       "morning briefing",                                                       
       "daily crunch",
       "week in review",                                                         
-      "newsletter",
-      "roundup",                                                              
-      "podcast",
-      "listen:",
-      "what we learned",                      
-      "five things",                      
+      "newsletter",                                                                                    
       "this week in",
       "Morning news brief"
 ]                                                                             
