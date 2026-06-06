@@ -16,7 +16,7 @@ import requests
 import feedparser
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
-from filters import should_skip
+from workers.scrapers.filters import should_skip
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from database.connection import supabase
