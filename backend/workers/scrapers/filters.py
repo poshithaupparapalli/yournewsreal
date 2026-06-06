@@ -9,6 +9,7 @@ TITLE_BLOCKLIST = [
       "what we learned",                      
       "five things",                      
       "this week in",
+      "Morning news brief"
 ]                                                                             
    
 NPR_BLOCKLIST = ["listen:", "listen now", "tiny desk", "shots -"]             

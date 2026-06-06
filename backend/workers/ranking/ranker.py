@@ -19,10 +19,12 @@ import numpy as np
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 
+load_dotenv()
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from database.connection import supabase
 
-load_dotenv()
+
 
 # ─────────────────────────────────────────────────────────────
 # CONFIG
