@@ -4,10 +4,9 @@ TITLE_BLOCKLIST = [
       "week in review",                                                         
       "newsletter",                                                                                    
       "this week in",
-      "Morning news brief"
 ]                                                                             
    
-NPR_BLOCKLIST = ["listen:", "listen now", "tiny desk", "shots -"]             
+NPR_BLOCKLIST = ["listen:", "listen now", "tiny desk", "shots -", ]             
 TECHCRUNCH_BLOCKLIST = ["daily crunch", "week in review", "this week"]
                                                                               
 def should_skip(title: str, source: str = "") -> bool:                        

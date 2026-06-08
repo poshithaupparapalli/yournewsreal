@@ -89,7 +89,7 @@ Return format: ["id1", "id2", "id3", ...]"""
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
-        max_tokens=500,
+        max_tokens=1000,
         messages=[{"role": "user", "content": prompt}]
     )
 
@@ -101,7 +101,15 @@ Return format: ["id1", "id2", "id3", ...]"""
         if raw.startswith("json"):
             raw = raw[4:]
 
-    return json.loads(raw.strip())
+    raw = raw.strip()
+
+    # If response was truncated, try to recover a partial list
+    if not raw.endswith("]"):
+        last_quote = raw.rfind('"')
+        if last_quote > 0:
+            raw = raw[:last_quote + 1] + "]"
+
+    return json.loads(raw)
 
 
 def save_llm_ranks(ranked_ids: list[str]):
