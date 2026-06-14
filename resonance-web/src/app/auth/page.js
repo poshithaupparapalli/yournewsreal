@@ -60,7 +60,10 @@ export default function AuthPage() {
         localStorage.setItem('user_id', data.user_id)
         localStorage.setItem('user_name', name)
         // Kick off on-demand pipeline in background, then show waiting page
-        fetch(`${API_URL}/run-pipeline/${data.user_id}`, { method: 'POST' })
+        fetch(`${API_URL}/run-pipeline/${data.user_id}`, {
+          method: 'POST',
+          headers: { 'x-pipeline-secret': process.env.NEXT_PUBLIC_PIPELINE_SECRET }
+        })
         router.push('/waiting')
       } else {
         const res = await fetch(`${API_URL}/login`, {
