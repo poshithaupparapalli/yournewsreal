@@ -1,4 +1,4 @@
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Header, HTTPException
 import sys, os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -21,7 +21,13 @@ def _run_for_user(user_id: str):
 
 
 @router.post("/run-pipeline/{user_id}")
-async def run_pipeline(user_id: str, background_tasks: BackgroundTasks):
+async def run_pipeline(
+    user_id: str,
+    background_tasks: BackgroundTasks,
+    x_pipeline_secret: str = Header(None)
+):
+    if x_pipeline_secret != os.getenv("PIPELINE_SECRET"):
+        raise HTTPException(status_code=403, detail="Forbidden")
     background_tasks.add_task(_run_for_user, user_id)
     return {"status": "started"}
 
