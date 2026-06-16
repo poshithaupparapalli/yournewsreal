@@ -1,3 +1,1 @@
-
-- `frontend/` — onboarding flow and briefing page
-- `backend/` — scraper, ranker, emailer, and API
+try it out - https://www.resonance-news.com/
