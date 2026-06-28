@@ -525,12 +525,17 @@ export default function BriefingPage() {
             borderBottom: '1px solid #e8e6e0',
           }}>
             <span style={{ fontSize: '14px', letterSpacing: '0.06em' }}>resonance</span>
-            <button
-              onClick={() => { localStorage.removeItem('user_id'); localStorage.removeItem('user_name'); router.push('/') }}
-              style={{ background: 'none', border: 'none', fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', cursor: 'pointer', letterSpacing: '0.06em' }}
-            >
-              sign out
-            </button>
+            <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+              <a href="/profile" style={{ background: 'none', border: 'none', fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', cursor: 'pointer', letterSpacing: '0.06em', textDecoration: 'none' }}>
+                profile
+              </a>
+              <button
+                onClick={() => { localStorage.removeItem('user_id'); localStorage.removeItem('user_name'); router.push('/') }}
+                style={{ background: 'none', border: 'none', fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', cursor: 'pointer', letterSpacing: '0.06em' }}
+              >
+                sign out
+              </button>
+            </div>
           </nav>
 
           <div style={{ padding: '32px 24px 8px' }}>
@@ -631,12 +636,17 @@ export default function BriefingPage() {
               {today}
             </div>
           </div>
-          <button
-            onClick={() => { localStorage.removeItem('user_id'); localStorage.removeItem('user_name'); router.push('/') }}
-            style={{ background: 'none', border: 'none', fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', cursor: 'pointer', letterSpacing: '0.06em' }}
-          >
-            sign out
-          </button>
+          <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+            <a href="/profile" style={{ fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', letterSpacing: '0.06em', textDecoration: 'none' }}>
+              profile
+            </a>
+            <button
+              onClick={() => { localStorage.removeItem('user_id'); localStorage.removeItem('user_name'); router.push('/') }}
+              style={{ background: 'none', border: 'none', fontSize: '11px', fontFamily: 'sans-serif', color: '#bbb', cursor: 'pointer', letterSpacing: '0.06em' }}
+            >
+              sign out
+            </button>
+          </div>
         </nav>
 
         <BackgroundDots />
